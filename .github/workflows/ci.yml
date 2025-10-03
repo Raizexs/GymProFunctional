@@ -1,0 +1,25 @@
+name: CI
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [feature/**, bugfix/**, hotfix/**]
+
+jobs:
+  jira-key:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verifica key de Jira en título del PR
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          echo "${{ github.event.pull_request.title }}" | grep -E 'GPF-[0-9]+' || \
+          (echo "Falta key de Jira (ej: GPF-4) en el título del PR" && exit 1)
+
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ejecuta tests si existe un proyecto Node (opcional)
+        run: |
+          if [ -f package.json ]; then npm ci && npm run lint --if-present && npm test --if-present; fi
+          if [ -f frontend/package.json ]; then cd frontend && npm ci && npm run lint --if-present && npm test --if-present; fi
