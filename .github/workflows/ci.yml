@@ -31,7 +31,7 @@ jobs:
       - name: Verifica nombre de rama
         run: |
           BRANCH="${{ github.head_ref }}"
-          if [[ ! "$BRANCH" =~ ^(feature|bugfix|hotfix|release)/GPF-[0-9]+-[a-z0-9-]+$ ]]; then
+          if [[ ! "$BRANCH" =~ ^(feature|bugfix|hotfix|release)/GPF-[0-9]+-[A-Za-z0-9-]+$ ]]; then
             echo "Nombre de rama inválido: $BRANCH"
             echo "Use: feature|bugfix|hotfix|release/GPF-<n>-<slug>"
             exit 1
