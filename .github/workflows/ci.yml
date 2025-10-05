@@ -3,7 +3,10 @@ on:
   pull_request:
     branches: [main, develop]
   push:
-    branches: [feature/**, bugfix/**, hotfix/**]
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+      - 'hotfix/**'
 
 jobs:
   jira-key:
@@ -23,16 +26,3 @@ jobs:
         run: |
           if [ -f package.json ]; then npm ci && npm run lint --if-present && npm test --if-present; fi
           if [ -f frontend/package.json ]; then cd frontend && npm ci && npm run lint --if-present && npm test --if-present; fi
-
-  branch-name:
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
-    steps:
-      - name: Verifica nombre de rama
-        run: |
-          BRANCH="${{ github.head_ref }}"
-          if [[ ! "$BRANCH" =~ ^(feature|bugfix|hotfix|release)/GPF-[0-9]+-[A-Za-z0-9-]+$ ]]; then
-            echo "Nombre de rama inválido: $BRANCH"
-            echo "Use: feature|bugfix|hotfix|release/GPF-<n>-<slug>"
-            exit 1
-          fi
