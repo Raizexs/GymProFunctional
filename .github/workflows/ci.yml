@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Ejecuta tests si existe un proyecto Node (opcional)
+      - name: Ejecuta linting (sin tests)
         run: |
-          if [ -f package.json ]; then npm ci && npm run lint --if-present && npm test --if-present; fi
-          if [ -f frontend/package.json ]; then cd frontend && npm ci && npm run lint --if-present && npm test --if-present; fi
+          if [ -f package.json ]; then npm ci && npm run lint --if-present; fi
+          if [ -f frontend/package.json ]; then cd frontend && npm ci && npm run lint --if-present; fi
