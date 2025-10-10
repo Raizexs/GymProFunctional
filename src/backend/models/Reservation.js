@@ -140,7 +140,7 @@ reservationSchema.virtual('duration').get(function() {
   return (end - start) / (1000 * 60); // Duration in minutes
 });
 
-// Virtual for isPast
+// Primero pasa por el tiempo de reserva para luego cumplir con el Worker/cola de notificaciones
 reservationSchema.virtual('isPast').get(function() {
   const now = new Date();
   const reservationDateTime = new Date(`${this.scheduledDate.toISOString().split('T')[0]}T${this.endTime}:00`);
