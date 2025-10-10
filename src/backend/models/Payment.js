@@ -96,7 +96,7 @@ const paymentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index for better query performance
+// Index para mejorar el rendimiento de la query
 paymentSchema.index({ client: 1 });
 paymentSchema.index({ reservation: 1 });
 paymentSchema.index({ status: 1 });
