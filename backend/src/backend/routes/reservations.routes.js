@@ -10,6 +10,41 @@ const router = Router();
 
 router.use(requireAuth);
 
+// Obtener reservas de una clase en una fecha específica (solo admin/trainer)
+router.get("/class/:classId/date/:date", async (req, res) => {
+  try {
+    // Verificar que el usuario sea admin o trainer
+    if (req.user.role !== "ADMIN" && req.user.role !== "TRAINER") {
+      return res
+        .status(403)
+        .json({ error: "No tienes permisos para ver estas reservas" });
+    }
+
+    const { classId, date } = req.params;
+
+    // Parsear la fecha (formato YYYY-MM-DD)
+    const targetDate = new Date(date);
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const reservations = await Reservation.find({
+      classId,
+      date: {
+        $gte: targetDate,
+        $lt: nextDay,
+      },
+      status: { $in: ["CONFIRMED", "COMPLETED"] },
+    })
+      .populate("userId", "name email")
+      .sort({ createdAt: 1 })
+      .lean();
+
+    res.json(reservations);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 router.get("/me", async (req, res) => {
   const items = await Reservation.find({ userId: req.user.id })
     .populate({

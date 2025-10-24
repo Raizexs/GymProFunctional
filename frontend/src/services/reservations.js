@@ -50,4 +50,14 @@ export const ReservationsService = {
     });
     return data;
   },
+
+  /**
+   * Obtener reservas de una clase en una fecha específica (solo admin/trainer)
+   */
+  async getClassReservations(classId, date) {
+    const { data } = await api.get(
+      `/reservations/class/${classId}/date/${date}`
+    );
+    return data;
+  },
 };
