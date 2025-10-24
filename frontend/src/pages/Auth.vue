@@ -9,6 +9,7 @@ const route = useRoute();
 const auth = useAuthStore();
 
 const tab = ref("login");
+const loginType = ref("user"); // 'user' o 'trainer'
 const name = ref("");
 const email = ref("");
 const password = ref("");
@@ -213,6 +214,71 @@ onUnmounted(() => {
               </div>
             </div>
 
+            <!-- Selector de tipo de usuario (solo en Login) -->
+            <div
+              v-if="tab === 'login'"
+              class="bg-slate-800/50 rounded-2xl p-2 mb-6 select-none"
+              style="user-select: none; -webkit-user-select: none"
+              unselectable="on"
+            >
+              <div
+                class="grid grid-cols-2 gap-2 select-none"
+                style="user-select: none; -webkit-user-select: none"
+                unselectable="on"
+              >
+                <button
+                  type="button"
+                  class="px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 select-none"
+                  style="
+                    user-select: none;
+                    -webkit-user-select: none;
+                    pointer-events: auto;
+                    cursor: pointer;
+                  "
+                  :class="
+                    loginType === 'user'
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg scale-105'
+                      : 'text-slate-400 hover:text-white'
+                  "
+                  @click="loginType = 'user'"
+                >
+                  <span
+                    style="
+                      user-select: none;
+                      -webkit-user-select: none;
+                      pointer-events: none;
+                    "
+                    >👤 Usuario</span
+                  >
+                </button>
+                <button
+                  type="button"
+                  class="px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 select-none"
+                  style="
+                    user-select: none;
+                    -webkit-user-select: none;
+                    pointer-events: auto;
+                    cursor: pointer;
+                  "
+                  :class="
+                    loginType === 'trainer'
+                      ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg scale-105'
+                      : 'text-slate-400 hover:text-white'
+                  "
+                  @click="loginType = 'trainer'"
+                >
+                  <span
+                    style="
+                      user-select: none;
+                      -webkit-user-select: none;
+                      pointer-events: none;
+                    "
+                    >💪 Entrenador</span
+                  >
+                </button>
+              </div>
+            </div>
+
             <!-- Formulario de Login -->
             <form
               v-if="tab === 'login'"
@@ -388,13 +454,20 @@ onUnmounted(() => {
                   <span
                     style="user-select: none; -webkit-user-select: none"
                     unselectable="on"
-                    >Demo:</span
+                    >Demo
+                    {{
+                      loginType === "trainer" ? "Entrenador" : "Admin"
+                    }}:</span
                   >
                   <span
                     class="text-indigo-400 font-semibold"
                     style="user-select: none; -webkit-user-select: none"
                     unselectable="on"
-                    >admin@gym.com</span
+                    >{{
+                      loginType === "trainer"
+                        ? "trainer@gym.com"
+                        : "admin@gym.com"
+                    }}</span
                   >
                   <span
                     style="user-select: none; -webkit-user-select: none"
@@ -405,7 +478,9 @@ onUnmounted(() => {
                     class="text-indigo-400 font-semibold"
                     style="user-select: none; -webkit-user-select: none"
                     unselectable="on"
-                    >admin123</span
+                    >{{
+                      loginType === "trainer" ? "trainer123" : "admin123"
+                    }}</span
                   >
                 </p>
               </div>

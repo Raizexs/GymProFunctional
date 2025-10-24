@@ -40,63 +40,305 @@ Aplicación full-stack para administrar un gimnasio funcional que permite:
 - ✅ Gestión de pagos y reembolsos
 - ✅ Envío de notificaciones masivas
 
-## 🛠️ Tecnologías y Dependencias
+## 🛠️ Stack Tecnológico y Dependencias
 
-### Backend
+### 🎯 Backend (Node.js + Express)
 
-#### Core
+#### Core Framework & Runtime
 
-- **Node.js** v18+ - Runtime de JavaScript
-- **Express** v4.19+ - Framework web para Node.js
-- **MongoDB** - Base de datos NoSQL
-- **Mongoose** v8.19+ - ODM para MongoDB
+```json
+{
+  "node": ">=18.0.0",
+  "express": "^4.19.2",
+  "dotenv": "^16.4.5"
+}
+```
+
+- **Node.js** v18+ - Runtime de JavaScript del lado del servidor
+- **Express.js** v4.19+ - Framework web minimalista y flexible para Node.js
+- **dotenv** v16.4+ - Carga variables de entorno desde archivo `.env`
+
+#### Base de Datos (MongoDB)
+
+```json
+{
+  "mongodb": "^6.20.0",
+  "mongoose": "^8.19.2"
+}
+```
+
+- **MongoDB** v6.20+ - Base de datos NoSQL orientada a documentos
+- **Mongoose** v8.19+ - ODM (Object Data Modeling) para MongoDB con schemas y validaciones
 
 #### Autenticación y Seguridad
 
-- **jsonwebtoken** v9.0+ - Generación y verificación de JWT tokens
-- **bcryptjs** v2.4+ - Hash de contraseñas (10 salt rounds)
-- **cors** v2.8+ - Configuración de Cross-Origin Resource Sharing
-- **dotenv** v16.4+ - Gestión de variables de entorno
+```json
+{
+  "jsonwebtoken": "^9.0.2",
+  "bcryptjs": "^2.4.3",
+  "cors": "^2.8.5"
+}
+```
 
-#### Pagos
+- **jsonwebtoken** v9.0+ - Implementación de JSON Web Tokens (JWT) para autenticación
+- **bcryptjs** v2.4+ - Librería para hash de contraseñas con bcrypt (10 salt rounds)
+- **cors** v2.8+ - Middleware para habilitar CORS (Cross-Origin Resource Sharing)
 
-- **stripe** v14.25+ - Integración de pagos (Payment Intents, Webhooks, Refunds)
+#### Procesamiento de Pagos
 
-#### Notificaciones
+```json
+{
+  "stripe": "^14.25.0"
+}
+```
 
-- **nodemailer** v6.10+ - Envío de emails (Gmail SMTP)
-- **node-cron** v4.2+ - Programación de tareas (recordatorios automáticos)
+- **Stripe** v14.25+ - Plataforma de pagos completa
+  - Payment Intents API
+  - Webhooks para confirmación automática
+  - Refunds y gestión de reembolsos
+  - Modo test/producción
 
-#### Desarrollo
+#### Sistema de Notificaciones
 
-- **nodemon** v3.0+ - Auto-reload en desarrollo
+```json
+{
+  "nodemailer": "^6.10.1",
+  "node-cron": "^4.2.1"
+}
+```
 
-### Frontend
+- **Nodemailer** v6.10+ - Librería para envío de emails transaccionales
+  - Soporte para Gmail SMTP
+  - Templates HTML personalizados
+  - Attachments y contenido multipart
+- **node-cron** v4.2+ - Scheduler de tareas cron en Node.js
+  - Recordatorios automáticos cada hora
+  - Sintaxis cron estándar
+  - Ejecución en background
 
-#### Core
+#### Herramientas de Desarrollo
 
-- **Vue.js 3** v3.4+ - Framework progresivo de JavaScript
-- **Vite** v5.4+ - Build tool y servidor de desarrollo
-- **Vue Router** v4+ - Sistema de navegación SPA
-- **Pinia** v2+ - State management oficial de Vue
+```json
+{
+  "nodemon": "^3.0.2"
+}
+```
 
-#### HTTP y APIs
+- **Nodemon** v3.0+ - Monitor de archivos que reinicia automáticamente el servidor en desarrollo
 
-- **Axios** v1+ - Cliente HTTP para llamadas a la API
+---
 
-#### UI y Estilos
+### 🎨 Frontend (Vue.js 3 + Vite)
 
-- **Tailwind CSS** v3+ - Framework CSS utility-first
-- **PostCSS** - Transformación de CSS
-- **Autoprefixer** - Prefijos CSS automáticos
+#### Core Framework & Build Tool
 
-#### Pagos (Frontend)
+```json
+{
+  "vue": "^3.4.0",
+  "vite": "^5.4.0",
+  "@vitejs/plugin-vue": "^5.0.0"
+}
+```
 
-- **@stripe/stripe-js** v4+ - Librería oficial de Stripe para frontend
+- **Vue.js 3** v3.4+ - Framework JavaScript progresivo
+  - Composition API
+  - Script setup
+  - Reactivity System
+  - Single File Components (SFC)
+- **Vite** v5.4+ - Build tool de nueva generación
+  - Hot Module Replacement (HMR) ultra rápido
+  - Build optimizado con Rollup
+  - Tree-shaking automático
+- **@vitejs/plugin-vue** v5.0+ - Plugin oficial de Vue para Vite
 
-#### Desarrollo
+#### Enrutamiento y Estado
 
-- **@vitejs/plugin-vue** - Plugin de Vite para Vue 3
+```json
+{
+  "vue-router": "^4.0.0",
+  "pinia": "^2.0.0"
+}
+```
+
+- **Vue Router** v4+ - Router oficial para Vue.js
+  - Navegación declarativa
+  - Rutas anidadas
+  - Guards de navegación
+  - History mode
+- **Pinia** v2+ - State management oficial de Vue 3
+  - Stores modulares
+  - DevTools integration
+  - TypeScript support
+  - Hot module replacement
+
+#### Comunicación HTTP
+
+```json
+{
+  "axios": "^1.0.0"
+}
+```
+
+- **Axios** v1+ - Cliente HTTP basado en promesas
+  - Interceptors para requests/responses
+  - Cancelación de peticiones
+  - Transformación automática de JSON
+  - Manejo de errores centralizado
+
+#### Estilos y UI
+
+```json
+{
+  "tailwindcss": "^3.4.0",
+  "postcss": "^8.4.0",
+  "autoprefixer": "^10.4.0"
+}
+```
+
+- **Tailwind CSS** v3.4+ - Framework CSS utility-first
+  - Personalización completa
+  - Purge CSS automático
+  - Responsive design
+  - Dark mode support
+- **PostCSS** v8.4+ - Herramienta para transformar CSS
+  - Procesamiento de plugins
+  - Optimización automática
+- **Autoprefixer** v10.4+ - Plugin de PostCSS
+  - Prefijos CSS automáticos
+  - Compatibilidad cross-browser
+
+#### Integración de Pagos (Frontend)
+
+```json
+{
+  "@stripe/stripe-js": "^4.0.0"
+}
+```
+
+- **@stripe/stripe-js** v4+ - Librería oficial de Stripe para navegadores
+  - Elements API para formularios seguros
+  - Payment Intents
+  - Tokenización de tarjetas
+  - PCI compliance
+
+---
+
+### 📦 Dependencias por Categoría
+
+#### 🔐 Seguridad
+
+- JWT para autenticación stateless
+- Bcrypt para hash de contraseñas
+- CORS configurado para origen específico
+- Variables sensibles en `.env`
+- Stripe con claves seguras
+
+#### 💳 Pagos
+
+- Stripe SDK completo (backend + frontend)
+- Webhooks para sincronización automática
+- Manejo de reembolsos
+- Modo test para desarrollo
+
+#### 📧 Comunicación
+
+- Nodemailer con Gmail SMTP
+- Templates HTML profesionales
+- Recordatorios automáticos con cron
+- Notificaciones in-app en tiempo real
+
+#### 🗄️ Base de Datos
+
+- MongoDB Atlas (cloud)
+- Mongoose para schemas y validaciones
+- Relaciones con populate
+- Índices optimizados
+
+#### 🎨 Frontend Moderno
+
+- Vue 3 Composition API
+- Vite para desarrollo rápido
+- Tailwind CSS utility-first
+- Router para SPA
+- Pinia para estado global
+
+---
+
+### 📊 Comparación de Versiones
+
+| Tecnología   | Versión Mínima | Versión Recomendada | Propósito          |
+| ------------ | -------------- | ------------------- | ------------------ |
+| Node.js      | 18.0.0         | 20.x LTS            | Runtime backend    |
+| MongoDB      | 4.4            | 7.0+                | Base de datos      |
+| Vue.js       | 3.4.0          | 3.4.x               | Framework frontend |
+| Vite         | 5.0.0          | 5.4.x               | Build tool         |
+| Express      | 4.19.0         | 4.19.x              | Framework web      |
+| Mongoose     | 8.0.0          | 8.19.x              | ODM MongoDB        |
+| Stripe       | 14.0.0         | 14.25.x             | Pagos online       |
+| Tailwind CSS | 3.0.0          | 3.4.x               | Framework CSS      |
+
+---
+
+### 🔧 Configuración de Herramientas
+
+#### package.json (Backend)
+
+```json
+{
+  "name": "gpf-backend",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "nodemon src/backend/server.js",
+    "start": "node src/backend/server.js",
+    "seed": "node src/backend/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.20.0",
+    "mongoose": "^8.19.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^6.10.1",
+    "stripe": "^14.25.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
+```
+
+#### package.json (Frontend)
+
+```json
+{
+  "name": "gpf-frontend",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.0.0",
+    "pinia": "^2.0.0",
+    "axios": "^1.0.0",
+    "@stripe/stripe-js": "^4.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "vite": "^5.4.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
+  }
+}
+```
 
 ## 🚀 Inicio Rápido
 
@@ -215,10 +457,10 @@ La aplicación estará disponible en: `http://localhost:5173`
 
 Después de ejecutar el seed:
 
-| Rol                  | Email         | Password | Permisos                                        |
-| -------------------- | ------------- | -------- | ----------------------------------------------- |
+| Rol            | Email         | Password | Permisos                                       |
+| -------------- | ------------- | -------- | ---------------------------------------------- |
 | **👤 Usuario** | user@gym.com  | user123  | Reservar clases, ver estadísticas personales   |
-| **🛡️ Admin** | admin@gym.com | admin123 | Acceso completo, reportes, gestión de usuarios |
+| **🛡️ Admin**   | admin@gym.com | admin123 | Acceso completo, reportes, gestión de usuarios |
 
 **Nota:** Estas credenciales son solo para desarrollo. En producción, usa credenciales seguras.
 
@@ -309,59 +551,59 @@ gym-pro-funcional/
 
 ### 🌍 Públicos
 
-| Método | Endpoint               | Descripción        |
-| ------- | ---------------------- | ------------------- |
-| GET     | `/api/health`        | Health check        |
-| POST    | `/api/auth/register` | Registrar usuario   |
-| POST    | `/api/auth/login`    | Iniciar sesión     |
-| GET     | `/api/trainers`      | Listar entrenadores |
-| GET     | `/api/classes`       | Listar clases       |
+| Método | Endpoint             | Descripción         |
+| ------ | -------------------- | ------------------- |
+| GET    | `/api/health`        | Health check        |
+| POST   | `/api/auth/register` | Registrar usuario   |
+| POST   | `/api/auth/login`    | Iniciar sesión      |
+| GET    | `/api/trainers`      | Listar entrenadores |
+| GET    | `/api/classes`       | Listar clases       |
 
 ### 🔒 Privados (Requieren JWT)
 
 #### Usuario y Perfil
 
-| Método | Endpoint            | Descripción        |
-| ------- | ------------------- | ------------------- |
-| GET     | `/api/me/summary` | Resumen del usuario |
+| Método | Endpoint          | Descripción         |
+| ------ | ----------------- | ------------------- |
+| GET    | `/api/me/summary` | Resumen del usuario |
 
 #### Reservas
 
-| Método | Endpoint                             | Descripción                      |
-| ------- | ------------------------------------ | --------------------------------- |
-| GET     | `/api/reservations/me`             | Mis reservas                      |
-| POST    | `/api/reservations`                | Crear reserva                     |
-| DELETE  | `/api/reservations/:id`            | Cancelar reserva                  |
-| POST    | `/api/reservations/:id/feedback`   | Enviar feedback                   |
-| PATCH   | `/api/reservations/:id/attendance` | Marcar asistencia (Admin/Trainer) |
+| Método | Endpoint                           | Descripción                       |
+| ------ | ---------------------------------- | --------------------------------- |
+| GET    | `/api/reservations/me`             | Mis reservas                      |
+| POST   | `/api/reservations`                | Crear reserva                     |
+| DELETE | `/api/reservations/:id`            | Cancelar reserva                  |
+| POST   | `/api/reservations/:id/feedback`   | Enviar feedback                   |
+| PATCH  | `/api/reservations/:id/attendance` | Marcar asistencia (Admin/Trainer) |
 
 #### Pagos
 
-| Método | Endpoint                        | Descripción            |
-| ------- | ------------------------------- | ----------------------- |
-| POST    | `/api/payments/create-intent` | Crear Payment Intent    |
-| POST    | `/api/payments/confirm`       | Confirmar pago          |
-| POST    | `/api/payments/:id/refund`    | Reembolsar pago (Admin) |
-| GET     | `/api/payments/history`       | Historial de pagos      |
-| POST    | `/api/payments/webhook`       | Webhook de Stripe       |
+| Método | Endpoint                      | Descripción             |
+| ------ | ----------------------------- | ----------------------- |
+| POST   | `/api/payments/create-intent` | Crear Payment Intent    |
+| POST   | `/api/payments/confirm`       | Confirmar pago          |
+| POST   | `/api/payments/:id/refund`    | Reembolsar pago (Admin) |
+| GET    | `/api/payments/history`       | Historial de pagos      |
+| POST   | `/api/payments/webhook`       | Webhook de Stripe       |
 
 #### Notificaciones
 
-| Método | Endpoint                              | Descripción                   |
-| ------- | ------------------------------------- | ------------------------------ |
-| GET     | `/api/notifications`                | Listar notificaciones          |
-| PUT     | `/api/notifications/:id/read`       | Marcar como leída             |
-| PUT     | `/api/notifications/read-all`       | Marcar todas como leídas      |
-| DELETE  | `/api/notifications/:id`            | Eliminar notificación         |
-| POST    | `/api/notifications/test`           | Enviar notificación de prueba |
-| POST    | `/api/notifications/send-reminders` | Enviar recordatorios (manual)  |
+| Método | Endpoint                            | Descripción                   |
+| ------ | ----------------------------------- | ----------------------------- |
+| GET    | `/api/notifications`                | Listar notificaciones         |
+| PUT    | `/api/notifications/:id/read`       | Marcar como leída             |
+| PUT    | `/api/notifications/read-all`       | Marcar todas como leídas      |
+| DELETE | `/api/notifications/:id`            | Eliminar notificación         |
+| POST   | `/api/notifications/test`           | Enviar notificación de prueba |
+| POST   | `/api/notifications/send-reminders` | Enviar recordatorios (manual) |
 
 #### Estadísticas
 
-| Método | Endpoint                 | Descripción                |
-| ------- | ------------------------ | --------------------------- |
-| GET     | `/api/stats/dashboard` | Dashboard según rol        |
-| GET     | `/api/stats/revenue`   | Reporte de ingresos (Admin) |
+| Método | Endpoint               | Descripción                 |
+| ------ | ---------------------- | --------------------------- |
+| GET    | `/api/stats/dashboard` | Dashboard según rol         |
+| GET    | `/api/stats/revenue`   | Reporte de ingresos (Admin) |
 
 ### 🔑 Autenticación
 

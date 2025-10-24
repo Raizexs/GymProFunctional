@@ -147,6 +147,28 @@ async function seed() {
       },
     });
 
+    const trainerUser = await User.create({
+      name: "Carlos Martínez",
+      email: "trainer@gym.com",
+      passwordHash: await bcrypt.hash("trainer123", 10),
+      role: "TRAINER",
+      phone: "+1122334455",
+      membershipType: "VIP",
+      membershipExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      preferences: {
+        notifications: {
+          email: true,
+          sms: true,
+          push: true,
+        },
+        language: "es",
+      },
+      stats: {
+        totalClasses: 0,
+        totalSpent: 0,
+      },
+    });
+
     console.log("👨‍🏫 Creando entrenadores...");
     const trainers = await Trainer.insertMany(trainersData);
 
@@ -284,6 +306,7 @@ async function seed() {
     console.log("\n🔑 Credenciales de prueba:");
     console.log("   Admin: admin@gym.com / admin123");
     console.log("   Usuario: user@gym.com / user123");
+    console.log("   Entrenador: trainer@gym.com / trainer123");
 
     await mongoose.connection.close();
     process.exit(0);
