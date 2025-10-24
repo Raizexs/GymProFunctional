@@ -5,6 +5,7 @@ import Clases from "@/pages/Clases.vue";
 import Reservas from "@/pages/Reservas.vue";
 import Entrenadores from "@/pages/Entrenadores.vue";
 import Stats from "@/pages/Stats.vue";
+import Asistencia from "@/pages/Asistencia.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const routes = [
@@ -17,6 +18,11 @@ const routes = [
     path: "/stats",
     component: Stats,
     meta: { requiresAdmin: true },
+  },
+  {
+    path: "/asistencia",
+    component: Asistencia,
+    meta: { requiresTrainer: true },
   },
 ];
 
@@ -38,6 +44,15 @@ router.beforeEach((to, _from, next) => {
 
   // Verificar si la ruta requiere permisos de admin
   if (to.meta.requiresAdmin && auth.user?.role !== "ADMIN") {
+    return next("/");
+  }
+
+  // Verificar si la ruta requiere permisos de trainer o admin
+  if (
+    to.meta.requiresTrainer &&
+    auth.user?.role !== "TRAINER" &&
+    auth.user?.role !== "ADMIN"
+  ) {
     return next("/");
   }
 

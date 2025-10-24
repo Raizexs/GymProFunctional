@@ -271,6 +271,54 @@ function isActive(path) {
                 >
               </router-link>
 
+              <!-- Asistencia (Solo Trainer y Admin) -->
+              <router-link
+                v-if="
+                  auth.user?.role === 'TRAINER' || auth.user?.role === 'ADMIN'
+                "
+                to="/asistencia"
+                class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
+                style="
+                  user-select: none;
+                  -webkit-user-select: none;
+                  pointer-events: auto;
+                  cursor: pointer;
+                "
+                :class="
+                  isActive('/asistencia')
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg'
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 inline mr-1.5 -mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  style="
+                    user-select: none;
+                    -webkit-user-select: none;
+                    pointer-events: none;
+                  "
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  />
+                </svg>
+                <span
+                  style="
+                    user-select: none;
+                    -webkit-user-select: none;
+                    pointer-events: none;
+                  "
+                  >Asistencia</span
+                >
+              </router-link>
+
               <!-- Stats (Solo Admin) -->
               <router-link
                 v-if="auth.user?.role === 'ADMIN'"
