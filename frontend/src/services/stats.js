@@ -18,6 +18,16 @@ export const StatsService = {
     });
     return data;
   },
+
+  /**
+   * Obtener KPIs de ocupación y no-show (admin/trainer)
+   */
+  async getOccupancyAndNoShowKPIs(startDate, endDate) {
+    const { data } = await http.get("/stats/occupancy-noshow", {
+      params: { startDate, endDate },
+    });
+    return data;
+  },
 };
 
 export default StatsService;

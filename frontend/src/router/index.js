@@ -6,6 +6,7 @@ import Reservas from "@/pages/Reservas.vue";
 import Entrenadores from "@/pages/Entrenadores.vue";
 import Stats from "@/pages/Stats.vue";
 import Asistencia from "@/pages/Asistencia.vue";
+import KPIs from "@/pages/KPIs.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const routes = [
@@ -22,6 +23,11 @@ const routes = [
   {
     path: "/asistencia",
     component: Asistencia,
+    meta: { requiresTrainer: true },
+  },
+  {
+    path: "/kpis",
+    component: KPIs,
     meta: { requiresTrainer: true },
   },
 ];
