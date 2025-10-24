@@ -2,6 +2,7 @@ import express from "express";
 import {
   getDashboardStats,
   getRevenueReport,
+  getOccupancyAndNoShowKPIs,
 } from "../services/stats.service.js";
 
 const router = express.Router();
@@ -58,6 +59,31 @@ router.get("/revenue", async (req, res) => {
     res.json(report);
   } catch (error) {
     console.error("Error getting revenue report:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/stats/occupancy-noshow
+ * Obtener KPIs de ocupación y no-show (solo admin y trainer)
+ */
+router.get("/occupancy-noshow", async (req, res) => {
+  try {
+    // Verificar que sea admin o trainer
+    if (req.user.role !== "ADMIN" && req.user.role !== "TRAINER") {
+      return res.status(403).json({ error: "Acceso denegado" });
+    }
+
+    const { startDate, endDate } = req.query;
+
+    const kpis = await getOccupancyAndNoShowKPIs({
+      startDate,
+      endDate,
+    });
+
+    res.json(kpis);
+  } catch (error) {
+    console.error("Error getting occupancy and no-show KPIs:", error);
     res.status(500).json({ error: error.message });
   }
 });
