@@ -1,0 +1,201 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: "Geist Mono", monospace;
+  }
+
+  /* Prevenir selección de texto EN TODO por defecto */
+  * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    cursor: default !important;
+  }
+
+  /* Solo permitir selección en inputs y textareas */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  textarea {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    cursor: text !important;
+  }
+
+  /* Cursor pointer para elementos clickeables */
+  button,
+  .btn,
+  [role="button"],
+  a,
+  [onclick],
+  label[for],
+  select {
+    cursor: pointer !important;
+  }
+
+  /* El contenido dentro de botones también debe tener cursor pointer */
+  button *,
+  .btn *,
+  [role="button"] *,
+  a * {
+    cursor: pointer !important;
+  }
+
+  /* SVGs y elementos decorativos tienen cursor default */
+  svg,
+  svg *,
+  img {
+    cursor: default !important;
+  }
+}
+
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-lg transition-all duration-300;
+}
+
+.btn-primary {
+  @apply bg-black text-white hover:bg-slate-800;
+}
+
+.btn-pill {
+  @apply rounded-full px-5 py-2;
+}
+
+.card {
+  @apply bg-white border border-slate-200 rounded-2xl shadow-sm;
+}
+
+/* Animaciones de ondas */
+@keyframes wave {
+  0% {
+    transform: translateX(-50%) translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50%) rotate(360deg);
+  }
+}
+
+@keyframes wave-reverse {
+  0% {
+    transform: translateX(-50%) translateY(-50%) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-50%) rotate(-360deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 500px;
+  border-radius: 40%;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.3),
+    rgba(168, 85, 247, 0.3)
+  );
+  animation: wave 20s linear infinite;
+  filter: blur(50px);
+}
+
+.wave:nth-child(2) {
+  width: 600px;
+  height: 600px;
+  animation: wave-reverse 25s linear infinite;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.3),
+    rgba(147, 51, 234, 0.3)
+  );
+  animation-delay: -5s;
+}
+
+.wave:nth-child(3) {
+  width: 700px;
+  height: 700px;
+  animation: wave 30s linear infinite;
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.2),
+    rgba(236, 72, 153, 0.2)
+  );
+  animation-delay: -10s;
+}
+
+/* Efecto de cursor */
+.cursor-glow {
+  pointer-events: none;
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.15) 0%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+/* Iconos flotantes */
+.floating-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+.floating-icon:nth-child(2) {
+  animation-delay: -1s;
+}
+
+.floating-icon:nth-child(3) {
+  animation-delay: -2s;
+}
+
+/* Efectos de hover para inputs */
+input:focus {
+  @apply ring-2 ring-indigo-500 border-indigo-500;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
