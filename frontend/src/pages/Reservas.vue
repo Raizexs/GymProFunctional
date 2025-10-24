@@ -3,12 +3,15 @@ import { ref, onMounted, computed } from "vue";
 import { ReservationsService } from "@/services/reservations";
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import PaymentModal from "@/components/PaymentModal.vue";
+import RescheduleModal from "@/components/RescheduleModal.vue";
 
 const items = ref([]);
 const open = ref(false);
 const toDelete = ref(null);
 const showPaymentModal = ref(false);
 const reservationToPay = ref(null);
+const showRescheduleModal = ref(false);
+const reservationToReschedule = ref(null);
 
 async function load() {
   items.value = await ReservationsService.mine();
@@ -38,6 +41,21 @@ function closePayment() {
 }
 
 function onPaymentSuccess() {
+  load();
+  window.dispatchEvent(new CustomEvent("reservation:changed"));
+}
+
+function openReschedule(reservation) {
+  reservationToReschedule.value = reservation;
+  showRescheduleModal.value = true;
+}
+
+function closeReschedule() {
+  showRescheduleModal.value = false;
+  reservationToReschedule.value = null;
+}
+
+function onRescheduleSuccess() {
   load();
   window.dispatchEvent(new CustomEvent("reservation:changed"));
 }
@@ -163,6 +181,13 @@ onMounted(load);
               💳 Pagar Ahora
             </button>
             <button
+              @click="openReschedule(r)"
+              class="px-6 py-3 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold hover:bg-blue-500/30 hover:scale-105 transition-all duration-300"
+              style="user-select: none; -webkit-user-select: none"
+            >
+              🔄 Reagendar
+            </button>
+            <button
               @click="askCancel(r)"
               class="px-6 py-3 rounded-xl bg-red-500/20 text-red-300 border border-red-500/30 font-semibold hover:bg-red-500/30 hover:scale-105 transition-all duration-300"
               style="user-select: none; -webkit-user-select: none"
@@ -209,13 +234,22 @@ onMounted(load);
               </p>
             </div>
           </div>
-          <button
-            @click="askCancel(r)"
-            class="px-6 py-3 rounded-xl bg-red-500/20 text-red-300 border border-red-500/30 font-semibold hover:bg-red-500/30 hover:scale-105 transition-all duration-300"
-            style="user-select: none; -webkit-user-select: none"
-          >
-            ✕ Cancelar
-          </button>
+          <div class="flex gap-2">
+            <button
+              @click="openReschedule(r)"
+              class="px-6 py-3 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold hover:bg-blue-500/30 hover:scale-105 transition-all duration-300"
+              style="user-select: none; -webkit-user-select: none"
+            >
+              🔄 Reagendar
+            </button>
+            <button
+              @click="askCancel(r)"
+              class="px-6 py-3 rounded-xl bg-red-500/20 text-red-300 border border-red-500/30 font-semibold hover:bg-red-500/30 hover:scale-105 transition-all duration-300"
+              style="user-select: none; -webkit-user-select: none"
+            >
+              ✕ Cancelar
+            </button>
+          </div>
         </div>
       </article>
     </div>
@@ -290,6 +324,14 @@ onMounted(load);
       :reservation="reservationToPay"
       @close="closePayment"
       @success="onPaymentSuccess"
+    />
+
+    <RescheduleModal
+      v-if="reservationToReschedule"
+      :show="showRescheduleModal"
+      :reservation="reservationToReschedule"
+      @close="closeReschedule"
+      @success="onRescheduleSuccess"
     />
   </section>
 </template>
