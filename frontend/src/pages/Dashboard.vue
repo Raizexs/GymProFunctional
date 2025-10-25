@@ -369,6 +369,46 @@ onBeforeUnmount(() => {
       </template>
     </div>
 
+    <!-- Tarjeta de Planes (para todos los usuarios) -->
+    <div
+      v-if="userRole === 'USER'"
+      class="backdrop-blur-xl bg-gradient-to-r from-yellow-600/40 to-orange-600/40 border border-yellow-500/30 rounded-2xl p-8 shadow-2xl"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h3 class="text-2xl font-bold text-white mb-2">💎 Planes y Bonos</h3>
+          <p class="text-yellow-100">
+            Descubre nuestros planes con descuentos especiales
+          </p>
+        </div>
+        <div
+          class="w-16 h-16 bg-yellow-500/30 rounded-2xl flex items-center justify-center"
+        >
+          <span class="text-4xl">🎁</span>
+        </div>
+      </div>
+      <button
+        @click="router.push('/planes')"
+        class="w-full md:w-auto px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold rounded-xl hover:from-yellow-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 shadow-lg"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 inline mr-2 -mt-0.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        Ver Planes Disponibles
+      </button>
+    </div>
+
     <!-- Estadísticas Avanzadas según Rol -->
     <div v-if="!statsLoading && dashboardStats" class="space-y-4">
       <!-- Para TRAINER -->

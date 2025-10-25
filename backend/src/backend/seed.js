@@ -7,6 +7,7 @@ import User from "./models/User.js";
 import Trainer from "./models/Trainer.js";
 import Class from "./models/Class.js";
 import Reservation from "./models/Reservation.js";
+import Plan from "./models/Plan.js";
 import connectDB from "./config/database.js";
 
 const trainersData = [
@@ -101,6 +102,7 @@ async function seed() {
     await Trainer.deleteMany({});
     await Class.deleteMany({});
     await Reservation.deleteMany({});
+    await Plan.deleteMany({});
 
     console.log("👤 Creando usuarios...");
     const adminUser = await User.create({
@@ -297,12 +299,130 @@ async function seed() {
       },
     ]);
 
+    console.log("💳 Creando planes...");
+    const plans = await Plan.insertMany([
+      {
+        name: "Básico",
+        description: "Perfecto para comenzar tu viaje fitness",
+        type: "MONTHLY",
+        price: 3900, // $39.00
+        credits: 8,
+        validityDays: 30,
+        features: [
+          "8 clases al mes",
+          "Acceso a todas las clases",
+          "App móvil",
+          "Soporte por email",
+        ],
+        isActive: true,
+        discountPercentage: 0,
+        isFeatured: false,
+      },
+      {
+        name: "Premium",
+        description: "La mejor opción para entrenar regularmente",
+        type: "MONTHLY",
+        price: 5900, // $59.00
+        credits: 20,
+        validityDays: 30,
+        features: [
+          "20 clases al mes",
+          "Acceso prioritario",
+          "Todas las clases incluidas",
+          "Asesoría nutricional básica",
+          "App móvil",
+          "Soporte prioritario",
+        ],
+        isActive: true,
+        discountPercentage: 15,
+        isFeatured: true,
+      },
+      {
+        name: "Ilimitado",
+        description: "Entrena sin límites",
+        type: "MONTHLY",
+        price: 9900, // $99.00
+        credits: 999,
+        validityDays: 30,
+        features: [
+          "Clases ilimitadas",
+          "Acceso VIP",
+          "Todas las clases incluidas",
+          "Plan nutricional personalizado",
+          "Invita a un amigo 1 vez/mes",
+          "App móvil premium",
+          "Soporte 24/7",
+        ],
+        isActive: true,
+        discountPercentage: 25,
+        isFeatured: true,
+      },
+      {
+        name: "Pack 10 Clases",
+        description: "Flexibilidad para entrenar a tu ritmo",
+        type: "CREDITS_PACK",
+        price: 4500, // $45.00
+        credits: 10,
+        validityDays: 60,
+        features: [
+          "10 clases",
+          "Válido por 60 días",
+          "Todas las clases",
+          "App móvil",
+        ],
+        isActive: true,
+        discountPercentage: 10,
+        isFeatured: false,
+      },
+      {
+        name: "Trimestral Premium",
+        description: "3 meses de entrenamiento a precio especial",
+        type: "QUARTERLY",
+        price: 15900, // $159.00
+        credits: 60,
+        validityDays: 90,
+        features: [
+          "60 clases (3 meses)",
+          "Ahorra 10%",
+          "Todas las clases incluidas",
+          "Asesoría nutricional",
+          "App móvil",
+          "Soporte prioritario",
+        ],
+        isActive: true,
+        discountPercentage: 10,
+        isFeatured: false,
+      },
+      {
+        name: "Anual VIP",
+        description: "El mejor precio del año",
+        type: "ANNUAL",
+        price: 59900, // $599.00
+        credits: 300,
+        validityDays: 365,
+        features: [
+          "300 clases (año completo)",
+          "Ahorra 50%",
+          "Acceso VIP de por vida",
+          "Plan nutricional personalizado",
+          "2 sesiones de entrenamiento personal",
+          "Evaluación física trimestral",
+          "App móvil premium",
+          "Soporte 24/7",
+        ],
+        isActive: true,
+        discountPercentage: 50,
+        isFeatured: true,
+      },
+    ]);
+
     console.log("✅ Seed completado exitosamente!");
     console.log("\n📊 Resumen:");
     console.log(`   - ${await User.countDocuments()} usuarios creados`);
     console.log(`   - ${await Trainer.countDocuments()} entrenadores creados`);
     console.log(`   - ${await Class.countDocuments()} clases creadas`);
     console.log(`   - ${await Reservation.countDocuments()} reservas creadas`);
+    console.log(`   - ${await Plan.countDocuments()} planes creados`);
     console.log("\n🔑 Credenciales de prueba:");
     console.log("   Admin: admin@gym.com / admin123");
     console.log("   Usuario: user@gym.com / user123");

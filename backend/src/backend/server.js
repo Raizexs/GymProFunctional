@@ -24,6 +24,7 @@ import meRouter from "./routes/me.routes.js";
 import paymentsRouter from "./routes/payments.routes.js";
 import notificationsRouter from "./routes/notifications.routes.js";
 import statsRouter from "./routes/stats.routes.js";
+import plansRouter from "./routes/plans.routes.js";
 import { requireAuth } from "./middlewares/auth.middleware.js";
 
 // Conectar a MongoDB
@@ -51,5 +52,6 @@ app.use("/api/me", meRouter);
 app.use("/api/payments", requireAuth, paymentsRouter);
 app.use("/api/notifications", requireAuth, notificationsRouter);
 app.use("/api/stats", requireAuth, statsRouter);
+app.use("/api/plans", requireAuth, plansRouter);
 
 app.listen(PORT, () => console.log(`API http://localhost:${PORT}`));
