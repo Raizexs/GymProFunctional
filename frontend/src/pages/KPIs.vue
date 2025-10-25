@@ -239,7 +239,9 @@ const getNoShowColor = (rate) => {
                 :style="{
                   height: `${
                     (day.attended /
-                      Math.max(...kpis.dailyTrend.map((d) => d.reservations || 0))) *
+                      Math.max(
+                        ...kpis.dailyTrend.map((d) => d.reservations || 0)
+                      )) *
                     100
                   }%`,
                   minHeight: (day.attended || 0) > 0 ? '8px' : '0',
@@ -250,7 +252,9 @@ const getNoShowColor = (rate) => {
                 >
                   <p class="font-semibold">{{ formatDate(day.date) }}</p>
                   <p>Reservas: {{ day.reservations || 0 }}</p>
-                  <p class="text-emerald-400">Asistieron: {{ day.attended || 0 }}</p>
+                  <p class="text-emerald-400">
+                    Asistieron: {{ day.attended || 0 }}
+                  </p>
                   <p class="text-red-400">No Show: {{ day.noShow || 0 }}</p>
                 </div>
               </div>
