@@ -45,6 +45,7 @@ onMounted(() => {
 });
 
 const formatDate = (dateStr) => {
+  if (!dateStr) return "-";
   const date = new Date(dateStr);
   return date.toLocaleDateString("es-CL", {
     day: "2-digit",
@@ -54,12 +55,14 @@ const formatDate = (dateStr) => {
 
 // Colores para los indicadores
 const getOccupancyColor = (rate) => {
+  if (!rate && rate !== 0) return "text-slate-400";
   if (rate >= 80) return "text-emerald-400";
   if (rate >= 60) return "text-yellow-400";
   return "text-red-400";
 };
 
 const getNoShowColor = (rate) => {
+  if (!rate && rate !== 0) return "text-slate-400";
   if (rate <= 10) return "text-emerald-400";
   if (rate <= 25) return "text-yellow-400";
   return "text-red-400";
@@ -144,7 +147,7 @@ const getNoShowColor = (rate) => {
           </div>
         </div>
         <p class="text-3xl font-bold text-white">
-          {{ kpis.overview.totalReservations }}
+          {{ kpis.overview?.totalReservations || 0 }}
         </p>
       </div>
 
@@ -162,13 +165,13 @@ const getNoShowColor = (rate) => {
         </div>
         <p
           class="text-3xl font-bold"
-          :class="getOccupancyColor(kpis.overview.attendanceRate)"
+          :class="getOccupancyColor(kpis.overview?.attendanceRate)"
         >
-          {{ kpis.overview.attendanceRate }}%
+          {{ kpis.overview?.attendanceRate || 0 }}%
         </p>
         <p class="text-slate-400 text-sm mt-2">
-          {{ kpis.overview.totalAttended }} de
-          {{ kpis.overview.totalReservations }}
+          {{ kpis.overview?.totalAttended || 0 }} de
+          {{ kpis.overview?.totalReservations || 0 }}
         </p>
       </div>
 
@@ -186,9 +189,9 @@ const getNoShowColor = (rate) => {
         </div>
         <p
           class="text-3xl font-bold"
-          :class="getOccupancyColor(kpis.overview.avgOccupancyRate)"
+          :class="getOccupancyColor(kpis.overview?.avgOccupancyRate)"
         >
-          {{ kpis.overview.avgOccupancyRate }}%
+          {{ kpis.overview?.avgOccupancyRate || 0 }}%
         </p>
       </div>
 
@@ -206,12 +209,12 @@ const getNoShowColor = (rate) => {
         </div>
         <p
           class="text-3xl font-bold"
-          :class="getNoShowColor(kpis.overview.avgNoShowRate)"
+          :class="getNoShowColor(kpis.overview?.avgNoShowRate)"
         >
-          {{ kpis.overview.avgNoShowRate }}%
+          {{ kpis.overview?.avgNoShowRate || 0 }}%
         </p>
         <p class="text-slate-400 text-sm mt-2">
-          {{ kpis.overview.totalNoShow }} ausencias
+          {{ kpis.overview?.totalNoShow || 0 }} ausencias
         </p>
       </div>
     </div>
@@ -236,19 +239,19 @@ const getNoShowColor = (rate) => {
                 :style="{
                   height: `${
                     (day.attended /
-                      Math.max(...kpis.dailyTrend.map((d) => d.reservations))) *
+                      Math.max(...kpis.dailyTrend.map((d) => d.reservations || 0))) *
                     100
                   }%`,
-                  minHeight: day.attended > 0 ? '8px' : '0',
+                  minHeight: (day.attended || 0) > 0 ? '8px' : '0',
                 }"
               >
                 <div
                   class="absolute -top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none"
                 >
                   <p class="font-semibold">{{ formatDate(day.date) }}</p>
-                  <p>Reservas: {{ day.reservations }}</p>
-                  <p class="text-emerald-400">Asistieron: {{ day.attended }}</p>
-                  <p class="text-red-400">No Show: {{ day.noShow }}</p>
+                  <p>Reservas: {{ day.reservations || 0 }}</p>
+                  <p class="text-emerald-400">Asistieron: {{ day.attended || 0 }}</p>
+                  <p class="text-red-400">No Show: {{ day.noShow || 0 }}</p>
                 </div>
               </div>
               <!-- Fecha -->
@@ -305,25 +308,25 @@ const getNoShowColor = (rate) => {
                 {{ cls.coach?.name || "Sin entrenador" }}
               </td>
               <td class="py-3 px-4 text-center text-slate-300">
-                {{ cls.capacity }}
+                {{ cls.capacity || 0 }}
               </td>
               <td class="py-3 px-4 text-center text-slate-300">
-                {{ cls.reservations }}
+                {{ cls.reservations || 0 }}
               </td>
               <td class="py-3 px-4 text-center text-emerald-400">
-                {{ cls.attended }}
+                {{ cls.attended || 0 }}
               </td>
               <td class="py-3 px-4 text-center">
                 <span
                   class="font-bold"
                   :class="getOccupancyColor(cls.occupancyRate)"
                 >
-                  {{ cls.occupancyRate }}%
+                  {{ cls.occupancyRate || 0 }}%
                 </span>
               </td>
               <td class="py-3 px-4 text-center">
                 <span class="font-bold" :class="getNoShowColor(cls.noShowRate)">
-                  {{ cls.noShowRate }}%
+                  {{ cls.noShowRate || 0 }}%
                 </span>
               </td>
             </tr>
@@ -367,10 +370,10 @@ const getNoShowColor = (rate) => {
           </div>
           <div class="text-right">
             <p class="text-2xl font-bold text-emerald-300">
-              {{ cls.attendanceRate }}%
+              {{ cls.attendanceRate || 0 }}%
             </p>
             <p class="text-xs text-slate-300">
-              {{ cls.attended }}/{{ cls.reservations }}
+              {{ cls.attended || 0 }}/{{ cls.reservations || 0 }}
             </p>
           </div>
         </div>
@@ -397,7 +400,7 @@ const getNoShowColor = (rate) => {
           </div>
           <div class="text-right">
             <p class="text-2xl font-bold text-red-400">
-              {{ user.noShowCount }}
+              {{ user.noShowCount || 0 }}
             </p>
             <p class="text-xs text-slate-400">ausencias</p>
           </div>

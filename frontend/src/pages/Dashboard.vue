@@ -454,48 +454,8 @@ onBeforeUnmount(() => {
         </div>
       </template>
 
-      <!-- Para TRAINER -->
-      <template v-if="userRole === 'TRAINER' || userRole === 'ADMIN'">
-        <div
-          class="backdrop-blur-xl bg-gradient-to-r from-emerald-600/40 to-green-600/40 border border-emerald-500/30 rounded-2xl p-8 shadow-2xl"
-        >
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-2xl font-bold text-white mb-2">
-                ✓ Control de Asistencia
-              </h3>
-              <p class="text-emerald-100">
-                Gestiona la asistencia de tus clases
-              </p>
-            </div>
-            <div
-              class="w-16 h-16 bg-emerald-500/30 rounded-2xl flex items-center justify-center"
-            >
-              <span class="text-4xl">📋</span>
-            </div>
-          </div>
-          <button
-            @click="router.push('/asistencia')"
-            class="w-full md:w-auto px-8 py-3.5 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transform hover:scale-105 transition-all duration-300 shadow-lg"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 inline mr-2 -mt-0.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-              />
-            </svg>
-            Ir a Control de Asistencia
-          </button>
-        </div>
-
+      <!-- KPIs para ADMIN -->
+      <template v-if="userRole === 'ADMIN'">
         <div
           class="backdrop-blur-xl bg-gradient-to-r from-purple-600/40 to-pink-600/40 border border-purple-500/30 rounded-2xl p-8 shadow-2xl"
         >
