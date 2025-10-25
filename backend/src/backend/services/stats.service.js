@@ -540,14 +540,14 @@ export async function getOccupancyAndNoShowKPIs({ startDate, endDate }) {
     // KPI 2: Tasa promedio de ocupación global
     const avgOccupancy =
       occupancyByClass.length > 0
-        ? occupancyByClass.reduce((sum, c) => sum + c.occupancyRate, 0) /
+        ? occupancyByClass.reduce((sum, c) => sum + (c.occupancyRate || 0), 0) /
           occupancyByClass.length
         : 0;
 
     // KPI 3: Tasa promedio de no-show global
     const avgNoShow =
       occupancyByClass.length > 0
-        ? occupancyByClass.reduce((sum, c) => sum + c.noShowRate, 0) /
+        ? occupancyByClass.reduce((sum, c) => sum + (c.noShowRate || 0), 0) /
           occupancyByClass.length
         : 0;
 
@@ -681,8 +681,8 @@ export async function getOccupancyAndNoShowKPIs({ startDate, endDate }) {
 
     return {
       overview: {
-        avgOccupancyRate: parseFloat(avgOccupancy.toFixed(2)),
-        avgNoShowRate: parseFloat(avgNoShow.toFixed(2)),
+        avgOccupancyRate: parseFloat((avgOccupancy || 0).toFixed(2)),
+        avgNoShowRate: parseFloat((avgNoShow || 0).toFixed(2)),
         totalReservations: totalStats[0]?.totalReservations || 0,
         totalAttended: totalStats[0]?.totalAttended || 0,
         totalNoShow: totalStats[0]?.totalNoShow || 0,
@@ -699,21 +699,21 @@ export async function getOccupancyAndNoShowKPIs({ startDate, endDate }) {
       },
       occupancyByClass: occupancyByClass.map((c) => ({
         ...c,
-        occupancyRate: parseFloat(c.occupancyRate.toFixed(2)),
-        noShowRate: parseFloat(c.noShowRate.toFixed(2)),
+        occupancyRate: parseFloat((c.occupancyRate || 0).toFixed(2)),
+        noShowRate: parseFloat((c.noShowRate || 0).toFixed(2)),
       })),
       dailyTrend: dailyOccupancy.map((d) => ({
         date: d.date,
         reservations: d.reservations,
         attended: d.attended,
         noShow: d.noShow,
-        attendanceRate: parseFloat(d.attendanceRate.toFixed(2)),
-        noShowRate: parseFloat(d.noShowRate.toFixed(2)),
+        attendanceRate: parseFloat((d.attendanceRate || 0).toFixed(2)),
+        noShowRate: parseFloat((d.noShowRate || 0).toFixed(2)),
       })),
       usersWithMostNoShows,
       bestAttendanceClasses: bestAttendanceClasses.map((c) => ({
         ...c,
-        attendanceRate: parseFloat((100 - c.noShowRate).toFixed(2)),
+        attendanceRate: parseFloat((100 - (c.noShowRate || 0) || 0).toFixed(2)),
       })),
     };
   } catch (error) {

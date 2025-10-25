@@ -28,13 +28,23 @@ const loadKPIs = async () => {
   error.value = "";
 
   try {
-    kpis.value = await StatsService.getOccupancyAndNoShowKPIs(
+    const data = await StatsService.getOccupancyAndNoShowKPIs(
       startDate.value,
       endDate.value
     );
+
+    // Asegurar que todos los arrays existan
+    kpis.value = {
+      overview: data.overview || {},
+      occupancyByClass: data.occupancyByClass || [],
+      dailyTrend: data.dailyTrend || [],
+      usersWithMostNoShows: data.usersWithMostNoShows || [],
+      bestAttendanceClasses: data.bestAttendanceClasses || [],
+    };
   } catch (e) {
     error.value = e?.response?.data?.error || "Error al cargar los KPIs";
     showToast(error.value, "error");
+    kpis.value = null;
   } finally {
     loading.value = false;
   }
@@ -221,7 +231,7 @@ const getNoShowColor = (rate) => {
 
     <!-- Gráfica de tendencia diaria -->
     <div
-      v-if="kpis && kpis.dailyTrend.length > 0"
+      v-if="kpis && kpis.dailyTrend && kpis.dailyTrend.length > 0"
       class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl"
     >
       <h3 class="text-xl font-bold text-white mb-4">📊 Tendencia Diaria</h3>
@@ -240,7 +250,8 @@ const getNoShowColor = (rate) => {
                   height: `${
                     (day.attended /
                       Math.max(
-                        ...kpis.dailyTrend.map((d) => d.reservations || 0)
+                        ...kpis.dailyTrend.map((d) => d.reservations || 0),
+                        1
                       )) *
                     100
                   }%`,
@@ -270,7 +281,7 @@ const getNoShowColor = (rate) => {
 
     <!-- Ocupación por Clase -->
     <div
-      v-if="kpis && kpis.occupancyByClass.length > 0"
+      v-if="kpis && kpis.occupancyByClass && kpis.occupancyByClass.length > 0"
       class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl"
     >
       <h3 class="text-xl font-bold text-white mb-4">📋 Ocupación por Clase</h3>
@@ -341,7 +352,11 @@ const getNoShowColor = (rate) => {
 
     <!-- Clases con Mejor Asistencia -->
     <div
-      v-if="kpis && kpis.bestAttendanceClasses.length > 0"
+      v-if="
+        kpis &&
+        kpis.bestAttendanceClasses &&
+        kpis.bestAttendanceClasses.length > 0
+      "
       class="backdrop-blur-xl bg-gradient-to-r from-emerald-600/40 to-green-600/40 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl"
     >
       <h3 class="text-xl font-bold text-white mb-4">
@@ -386,7 +401,11 @@ const getNoShowColor = (rate) => {
 
     <!-- Usuarios con Más No-Shows -->
     <div
-      v-if="kpis && kpis.usersWithMostNoShows.length > 0"
+      v-if="
+        kpis &&
+        kpis.usersWithMostNoShows &&
+        kpis.usersWithMostNoShows.length > 0
+      "
       class="backdrop-blur-xl bg-gradient-to-r from-red-600/40 to-orange-600/40 border border-red-500/30 rounded-2xl p-6 shadow-2xl"
     >
       <h3 class="text-xl font-bold text-white mb-4">
@@ -423,6 +442,27 @@ const getNoShowColor = (rate) => {
         <span class="text-4xl">⏳</span>
       </div>
       <p class="text-slate-300 text-lg">Cargando KPIs...</p>
+    </div>
+
+    <!-- Mensaje cuando no hay datos -->
+    <div
+      v-if="
+        !loading &&
+        kpis &&
+        (!kpis.dailyTrend || kpis.dailyTrend.length === 0) &&
+        (!kpis.occupancyByClass || kpis.occupancyByClass.length === 0)
+      "
+      class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl text-center"
+    >
+      <div
+        class="w-20 h-20 bg-gradient-to-br from-slate-500/20 to-slate-600/20 rounded-3xl flex items-center justify-center mx-auto mb-4"
+      >
+        <span class="text-4xl">📊</span>
+      </div>
+      <p class="text-slate-300 text-lg mb-2">No hay datos disponibles</p>
+      <p class="text-slate-400 text-sm">
+        No se encontraron reservas en el rango de fechas seleccionado.
+      </p>
     </div>
 
     <Toast
