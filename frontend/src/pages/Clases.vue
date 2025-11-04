@@ -17,9 +17,14 @@ const reservationToPay = ref(null);
 
 // Obtener el estado de reserva para una clase
 function getReservationStatus(classId) {
-  // Buscar todas las reservas activas (no canceladas) para esta clase
-  const activeReservations = myReservations.value.filter(
-    (r) => r.klass?.id === classId && r.status !== "CANCELLED"
+  // Buscar reservas confirmadas para esta clase
+  const confirmedReservations = myReservations.value.filter(
+    (r) => r.klass?.id === classId && r.status === "CONFIRMED"
+  );
+
+  // Buscar reservas pendientes de pago para esta clase
+  const pendingPaymentReservations = myReservations.value.filter(
+    (r) => r.klass?.id === classId && r.status === "PENDING_PAYMENT"
   );
 
   // Buscar reservas canceladas para esta clase
@@ -28,10 +33,13 @@ function getReservationStatus(classId) {
   );
 
   return {
-    hasActiveReservation: activeReservations.length > 0,
+    hasConfirmedReservation: confirmedReservations.length > 0,
+    hasPendingPayment: pendingPaymentReservations.length > 0,
     hasCancelledReservation: cancelledReservations.length > 0,
-    activeCount: activeReservations.length,
+    confirmedCount: confirmedReservations.length,
+    pendingCount: pendingPaymentReservations.length,
     cancelledCount: cancelledReservations.length,
+    pendingReservation: pendingPaymentReservations[0] || null,
   };
 }
 
@@ -57,11 +65,15 @@ function openReserve(k) {
 function handleSuccess(data) {
   toastMessage.value = data.message;
   showToast.value = true;
+  // Recargar las reservas después de confirmar
+  load();
 }
 
 function handlePendingPayment(reservation) {
   reservationToPay.value = reservation;
   showPaymentModal.value = true;
+  // Recargar las reservas para mostrar la pendiente
+  load();
 }
 
 function closePayment() {
@@ -290,7 +302,10 @@ onMounted(load);
 
         <!-- Botón de reserva -->
         <button
-          v-if="!getReservationStatus(k.id).hasActiveReservation"
+          v-if="
+            !getReservationStatus(k.id).hasConfirmedReservation &&
+            !getReservationStatus(k.id).hasPendingPayment
+          "
           class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-300 shadow-lg select-none"
           @click="openReserve(k)"
           style="
@@ -330,6 +345,52 @@ onMounted(load);
             >Reservar Clase</span
           >
         </button>
+
+        <!-- Estado: Pendiente de Pago -->
+        <button
+          v-else-if="getReservationStatus(k.id).hasPendingPayment"
+          @click="
+            handlePendingPayment({
+              ...getReservationStatus(k.id).pendingReservation,
+              klass: k,
+            })
+          "
+          class="w-full py-3 bg-amber-500/20 border border-amber-500/30 text-amber-300 font-semibold rounded-xl flex items-center justify-center gap-2 select-none hover:bg-amber-500/30 transition-all duration-300 cursor-pointer"
+          style="
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: auto;
+          "
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            style="
+              user-select: none;
+              -webkit-user-select: none;
+              pointer-events: none;
+            "
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span
+            style="user-select: none; -webkit-user-select: none"
+            unselectable="on"
+            >⏳ Pendiente de Pago ({{
+              getReservationStatus(k.id).pendingCount
+            }})</span
+          >
+        </button>
+
+        <!-- Estado: Confirmada -->
         <div
           v-else
           class="w-full py-3 bg-green-500/20 border border-green-500/30 text-green-300 font-semibold rounded-xl flex items-center justify-center gap-2 select-none"
@@ -358,7 +419,9 @@ onMounted(load);
           <span
             style="user-select: none; -webkit-user-select: none"
             unselectable="on"
-            >Ya Reservada ({{ getReservationStatus(k.id).activeCount }})</span
+            >✅ Ya Reservada ({{
+              getReservationStatus(k.id).confirmedCount
+            }})</span
           >
         </div>
       </article>

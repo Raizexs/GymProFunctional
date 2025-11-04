@@ -34,6 +34,14 @@ export const PlansService = {
     });
     return data;
   },
+
+  /**
+   * Confirmar pago de un plan
+   */
+  async confirmPayment(paymentId) {
+    const { data } = await api.post(`/plans/payments/${paymentId}/confirm`);
+    return data;
+  },
 };
 
 export default PlansService;

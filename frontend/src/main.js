@@ -3,9 +3,16 @@ import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
 import "./assets/main.css";
+import { useAuthStore } from "./stores/auth";
 
 const app = createApp(App);
 
-app.use(createPinia());
+const pinia = createPinia();
+app.use(pinia);
+
+// Cargar sesión ANTES de inicializar el router
+const auth = useAuthStore();
+auth.loadFromStorage();
+
 app.use(router);
 app.mount("#app");

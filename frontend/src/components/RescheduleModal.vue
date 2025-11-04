@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { ReservationsService } from "@/services/reservations";
 
 const props = defineProps({
@@ -30,6 +30,8 @@ const maxDate = computed(() => {
 // Obtener días válidos de la clase
 const validDays = computed(() => {
   if (!props.reservation?.klass?.days) return [];
+  if (!Array.isArray(props.reservation.klass.days)) return [];
+
   const dayMap = {
     Domingo: 0,
     Lunes: 1,
@@ -39,13 +41,20 @@ const validDays = computed(() => {
     Viernes: 5,
     Sábado: 6,
   };
-  return props.reservation.klass.days.map((d) => dayMap[d]);
+
+  return props.reservation.klass.days
+    .map((d) => dayMap[d])
+    .filter((day) => day !== undefined);
 });
 
 // Validar que la fecha seleccionada sea un día válido
 const isValidDay = (dateString) => {
+  if (!dateString) return false;
+  if (!validDays.value || validDays.value.length === 0) return false;
+
   const date = new Date(dateString + "T00:00:00");
   const dayOfWeek = date.getDay();
+
   return validDays.value.includes(dayOfWeek);
 };
 
@@ -58,7 +67,8 @@ async function handleReschedule() {
   }
 
   if (!isValidDay(newDate.value)) {
-    const validDayNames = props.reservation.klass.days.join(", ");
+    const validDayNames =
+      props.reservation?.klass?.days?.join(", ") || "días válidos";
     error.value = `Esta clase solo está disponible los días: ${validDayNames}`;
     return;
   }
@@ -66,19 +76,48 @@ async function handleReschedule() {
   loading.value = true;
 
   try {
+    // Obtener el classId correcto
+    const classId =
+      props.reservation.classId ||
+      props.reservation.klass?.id ||
+      props.reservation.klass?._id;
+
+    if (!classId) {
+      throw new Error("No se pudo obtener el ID de la clase");
+    }
+
+    // Convertir la fecha a formato ISO con hora del mediodía para evitar problemas de zona horaria
+    const localDate = new Date(newDate.value + "T12:00:00");
+    const dateISO = localDate.toISOString();
+
+    console.log("Reagendando - classId:", classId, "dateISO:", dateISO);
+
     // Primero cancelamos la reserva actual
-    await ReservationsService.remove(props.reservation.id);
+    await ReservationsService.remove(
+      props.reservation.id || props.reservation._id
+    );
 
     // Luego creamos una nueva reserva con la nueva fecha
-    await ReservationsService.create({
-      classId: props.reservation.classId,
-      dateISO: newDate.value,
-    });
+    const newReservation = await ReservationsService.create(classId, dateISO);
 
+    console.log("Nueva reserva creada:", newReservation);
+
+    // Emitir evento de éxito ANTES de cerrar
     emit("success");
+
+    // Emitir evento de cambio global
+    window.dispatchEvent(new CustomEvent("reservation:changed"));
+
+    // Pequeño delay para asegurar que se procesen los eventos
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     emit("close");
   } catch (err) {
-    error.value = err.response?.data?.error || "Error al reagendar la reserva";
+    console.error("Error al reagendar:", err);
+    error.value =
+      err.response?.data?.error ||
+      err.message ||
+      "Error al reagendar la reserva";
   } finally {
     loading.value = false;
   }
@@ -91,6 +130,17 @@ function handleClose() {
     emit("close");
   }
 }
+
+// Limpiar el formulario cuando se abre el modal
+watch(
+  () => props.show,
+  (isOpen) => {
+    if (isOpen) {
+      error.value = "";
+      newDate.value = "";
+    }
+  }
+);
 </script>
 
 <template>

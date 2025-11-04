@@ -3,6 +3,8 @@ import { ref, computed, onMounted } from "vue";
 import { PlansService } from "@/services/plans";
 import Toast from "@/components/Toast.vue";
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import PlanPurchaseModal from "@/components/PlanPurchaseModal.vue";
+import PaymentModal from "@/components/PaymentModal.vue";
 
 const plans = ref([]);
 const myPlans = ref([]);
@@ -14,6 +16,10 @@ const showPurchaseModal = ref(false);
 const planToPurchase = ref(null);
 const showCancelModal = ref(false);
 const planToCancel = ref(null);
+
+// Modal de pago
+const showPaymentModal = ref(false);
+const pendingPayment = ref(null);
 
 // Toast
 const toast = ref({ show: false, message: "", type: "success" });
@@ -30,20 +36,36 @@ const loadPlans = async () => {
   error.value = "";
 
   try {
-    [plans.value, myPlans.value] = await Promise.all([
-      PlansService.list(),
-      PlansService.myPlans(),
+    const [plansData, myPlansData] = await Promise.all([
+      PlansService.list().catch((err) => {
+        console.error("Error loading plans:", err);
+        return [];
+      }),
+      PlansService.myPlans().catch((err) => {
+        console.error("Error loading my plans:", err);
+        return [];
+      }),
     ]);
+
+    plans.value = plansData || [];
+    myPlans.value = myPlansData || [];
   } catch (e) {
+    console.error("Error in loadPlans:", e);
     error.value = e?.response?.data?.error || "Error al cargar los planes";
     showToast(error.value, "error");
+    plans.value = [];
+    myPlans.value = [];
   } finally {
     loading.value = false;
   }
 };
 
-onMounted(() => {
-  loadPlans();
+onMounted(async () => {
+  try {
+    await loadPlans();
+  } catch (e) {
+    console.error("Error in onMounted:", e);
+  }
 });
 
 const activePlan = computed(() => {
@@ -55,8 +77,10 @@ const activePlan = computed(() => {
 const formatCurrency = (cents) => {
   return new Intl.NumberFormat("es-CL", {
     style: "currency",
-    currency: "USD",
-  }).format(cents / 100);
+    currency: "CLP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(cents);
 };
 
 const formatDate = (dateStr) => {
@@ -87,15 +111,28 @@ const confirmPurchase = async () => {
 
   try {
     loading.value = true;
-    await PlansService.purchase(planToPurchase.value._id);
-    showToast("¡Plan adquirido exitosamente! 🎉", "success");
-    await loadPlans();
+    const response = await PlansService.purchase(planToPurchase.value._id);
+
+    // Cerrar modal de confirmación
+    showPurchaseModal.value = false;
+    planToPurchase.value = null;
+
+    // Si requiere pago, abrir modal de pago
+    if (response.requiresPayment && response.payment) {
+      pendingPayment.value = {
+        ...response.payment,
+        planName: response.userPlan.planId.name,
+        isPlan: true,
+      };
+      showPaymentModal.value = true;
+    } else {
+      showToast("¡Plan adquirido exitosamente! 🎉", "success");
+      await loadPlans();
+    }
   } catch (e) {
     showToast(e?.response?.data?.error || "Error al comprar el plan", "error");
   } finally {
     loading.value = false;
-    showPurchaseModal.value = false;
-    planToPurchase.value = null;
   }
 };
 
@@ -122,6 +159,28 @@ const confirmCancel = async () => {
     showCancelModal.value = false;
     planToCancel.value = null;
   }
+};
+
+const handlePaymentSuccess = async () => {
+  try {
+    if (pendingPayment.value?.isPlan) {
+      await PlansService.confirmPayment(pendingPayment.value._id);
+      showToast("¡Pago confirmado! Tu plan está activo 🎉", "success");
+    }
+    showPaymentModal.value = false;
+    pendingPayment.value = null;
+    await loadPlans();
+  } catch (e) {
+    showToast(
+      e?.response?.data?.error || "Error al confirmar el pago",
+      "error"
+    );
+  }
+};
+
+const handlePaymentClose = () => {
+  showPaymentModal.value = false;
+  pendingPayment.value = null;
 };
 </script>
 
@@ -381,25 +440,38 @@ const confirmCancel = async () => {
       v-if="loading"
       class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl text-center"
     >
-      <div
-        class="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 rounded-3xl flex items-center justify-center mx-auto mb-4 animate-pulse"
-      >
-        <span class="text-4xl">⏳</span>
+      <div class="w-20 h-20 mx-auto mb-4">
+        <svg
+          class="animate-spin h-20 w-20 text-yellow-400"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
       </div>
-      <p class="text-slate-300 text-lg">Cargando planes...</p>
+      <p class="text-slate-300 text-lg font-semibold">⏳ Cargando planes...</p>
+      <p class="text-slate-400 text-sm mt-2">
+        Obteniendo información de planes disponibles
+      </p>
     </div>
 
     <!-- Modal de confirmación de compra -->
-    <ConfirmModal
+    <PlanPurchaseModal
       :open="showPurchaseModal"
-      title="¿Confirmar compra?"
-      :message="
-        planToPurchase
-          ? `¿Deseas comprar el plan ${
-              planToPurchase.name
-            } por ${formatCurrency(planToPurchase.price)}?`
-          : ''
-      "
+      :plan="planToPurchase"
       @cancel="
         showPurchaseModal = false;
         planToPurchase = null;
@@ -421,6 +493,14 @@ const confirmCancel = async () => {
         planToCancel = null;
       "
       @confirm="confirmCancel"
+    />
+
+    <!-- Modal de pago -->
+    <PaymentModal
+      :show="showPaymentModal"
+      :payment="pendingPayment"
+      @success="handlePaymentSuccess"
+      @close="handlePaymentClose"
     />
 
     <Toast

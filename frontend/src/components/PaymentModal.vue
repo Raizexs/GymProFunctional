@@ -40,8 +40,11 @@
 
         <!-- Body -->
         <div class="p-6 space-y-4">
-          <!-- Información de la clase -->
-          <div class="bg-white/5 rounded-lg p-4 border border-white/10">
+          <!-- Información de la clase (solo para reservas) -->
+          <div
+            v-if="!isPlanPayment && reservation"
+            class="bg-white/5 rounded-lg p-4 border border-white/10"
+          >
             <h4 class="font-semibold text-white mb-2">
               {{ reservation.klass?.title || reservation.classId?.title }}
             </h4>
@@ -60,6 +63,17 @@
             </div>
           </div>
 
+          <!-- Información del plan (solo para planes) -->
+          <div
+            v-if="isPlanPayment"
+            class="bg-white/5 rounded-lg p-4 border border-white/10"
+          >
+            <h4 class="font-semibold text-white mb-2">
+              💎 {{ payment.planName }}
+            </h4>
+            <p class="text-sm text-gray-400">{{ payment.description }}</p>
+          </div>
+
           <!-- Monto -->
           <div
             class="flex items-center justify-between py-4 border-y border-white/10"
@@ -76,7 +90,7 @@
               style="user-select: none; -webkit-user-select: none"
               unselectable="on"
             >
-              ${{ getPrice().toFixed(3) }}
+              {{ formatPrice(getPrice()) }}
             </span>
           </div>
 
@@ -108,7 +122,11 @@
               style="user-select: none; -webkit-user-select: none"
               unselectable="on"
             >
-              Tu reserva ha sido confirmada
+              {{
+                isPlanPayment
+                  ? "Tu plan ha sido adquirido"
+                  : "Tu reserva ha sido confirmada"
+              }}
             </p>
           </div>
 
@@ -195,18 +213,27 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { PaymentsService } from "../services/payments";
 
 const props = defineProps({
   show: Boolean,
   reservation: Object,
+  payment: Object, // Para pagos de planes
 });
 
 const emit = defineEmits(["close", "success"]);
 
 const paymentStatus = ref("idle"); // idle, processing, success, error
 const errorMessage = ref("");
+
+const isPlanPayment = computed(() => !!props.payment?.isPlan);
+
+const getTitle = () => {
+  return isPlanPayment.value
+    ? props.payment?.planName || "Plan"
+    : props.reservation?.klass?.title || props.reservation?.classId?.title;
+};
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString("es-ES", {
@@ -218,9 +245,14 @@ const formatDate = (date) => {
 };
 
 const getPrice = () => {
-  // Intentar obtener el precio de diferentes fuentes
+  // Si es un pago de plan, usar el monto del payment
+  if (isPlanPayment.value) {
+    return Number(props.payment?.amount || 0);
+  }
+
+  // Si es una reserva, obtener el precio de la clase
   const price =
-    props.reservation.klass?.price || props.reservation.classId?.price || 0;
+    props.reservation?.klass?.price || props.reservation?.classId?.price || 0;
 
   console.log("Reservation data:", props.reservation);
   console.log("Price found:", price);
@@ -228,12 +260,34 @@ const getPrice = () => {
   return Number(price);
 };
 
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+};
+
 const processPayment = async () => {
   try {
     paymentStatus.value = "processing";
     errorMessage.value = "";
 
-    // Obtener el precio usando la función getPrice
+    // Simular procesamiento de pago
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Si es un pago de plan, solo emitir success (el padre maneja la confirmación)
+    if (isPlanPayment.value) {
+      paymentStatus.value = "success";
+      setTimeout(() => {
+        emit("success");
+        closeModal();
+      }, 1500);
+      return;
+    }
+
+    // Si es una reserva, procesar normalmente
     const price = getPrice();
 
     // Crear payment intent
@@ -241,9 +295,6 @@ const processPayment = async () => {
       props.reservation.id || props.reservation._id,
       price
     );
-
-    // Simular procesamiento de pago (en producción aquí iría Stripe Elements)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Confirmar el pago
     await PaymentsService.confirmPayment(paymentIntent.stripePaymentIntentId);

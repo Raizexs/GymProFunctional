@@ -234,18 +234,34 @@ const getNoShowColor = (rate) => {
       v-if="kpis && kpis.dailyTrend && kpis.dailyTrend.length > 0"
       class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl"
     >
-      <h3 class="text-xl font-bold text-white mb-4">📊 Tendencia Diaria</h3>
+      <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6 text-emerald-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+          />
+        </svg>
+        📊 Tendencia Diaria
+      </h3>
       <div class="overflow-x-auto">
         <div class="min-w-full">
-          <div class="flex gap-2 items-end h-64 px-4">
+          <div class="flex gap-3 items-end h-72 px-4">
             <div
-              v-for="day in kpis.dailyTrend"
+              v-for="(day, index) in kpis.dailyTrend"
               :key="day.date"
-              class="flex-1 flex flex-col items-center gap-2"
+              class="flex-1 flex flex-col items-center gap-3"
             >
-              <!-- Barra de asistencias -->
+              <!-- Barra animada con gradiente y sombra -->
               <div
-                class="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg relative group cursor-pointer hover:opacity-80 transition-opacity"
+                class="w-full bg-gradient-to-t from-emerald-600 via-emerald-500 to-emerald-400 rounded-t-xl relative group cursor-pointer transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-emerald-500/50 animate-grow"
                 :style="{
                   height: `${
                     (day.attended /
@@ -255,24 +271,101 @@ const getNoShowColor = (rate) => {
                       )) *
                     100
                   }%`,
-                  minHeight: (day.attended || 0) > 0 ? '8px' : '0',
+                  minHeight: (day.attended || 0) > 0 ? '12px' : '4px',
+                  animationDelay: `${index * 100}ms`,
                 }"
               >
+                <!-- Valor en la parte superior de la barra -->
                 <div
-                  class="absolute -top-20 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none"
+                  class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-emerald-500/90 text-white text-xs font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <p class="font-semibold">{{ formatDate(day.date) }}</p>
-                  <p>Reservas: {{ day.reservations || 0 }}</p>
-                  <p class="text-emerald-400">
-                    Asistieron: {{ day.attended || 0 }}
+                  {{ day.attended || 0 }}
+                </div>
+
+                <!-- Tooltip mejorado -->
+                <div
+                  class="absolute -top-28 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm text-white text-xs px-4 py-3 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-20 pointer-events-none border border-white/20 shadow-2xl"
+                >
+                  <p class="font-bold text-emerald-400 mb-2">
+                    {{ formatDate(day.date) }}
                   </p>
-                  <p class="text-red-400">No Show: {{ day.noShow || 0 }}</p>
+                  <div class="space-y-1">
+                    <p class="flex items-center justify-between gap-4">
+                      <span class="text-slate-400">Reservas:</span>
+                      <span class="font-semibold">{{
+                        day.reservations || 0
+                      }}</span>
+                    </p>
+                    <p class="flex items-center justify-between gap-4">
+                      <span class="text-emerald-400">✓ Asistieron:</span>
+                      <span class="font-semibold text-emerald-400">{{
+                        day.attended || 0
+                      }}</span>
+                    </p>
+                    <p class="flex items-center justify-between gap-4">
+                      <span class="text-red-400">✗ No Show:</span>
+                      <span class="font-semibold text-red-400">{{
+                        day.noShow || 0
+                      }}</span>
+                    </p>
+                    <p
+                      class="flex items-center justify-between gap-4 pt-1 border-t border-white/10"
+                    >
+                      <span class="text-slate-400">Tasa:</span>
+                      <span class="font-semibold text-white">
+                        {{
+                          day.reservations > 0
+                            ? Math.round(
+                                (day.attended / day.reservations) * 100
+                              )
+                            : 0
+                        }}%
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
-              <!-- Fecha -->
-              <span class="text-xs text-slate-400 rotate-45 origin-left">
-                {{ formatDate(day.date) }}
-              </span>
+
+              <!-- Fecha con icono -->
+              <div class="flex flex-col items-center">
+                <span class="text-xs font-semibold text-slate-300">
+                  {{ formatDate(day.date).split(" ")[0] }}
+                </span>
+                <span class="text-[10px] text-slate-500">
+                  {{ formatDate(day.date).split(" ")[1] }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Leyenda -->
+          <div
+            class="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-white/10"
+          >
+            <div class="flex items-center gap-2">
+              <div
+                class="w-4 h-4 bg-gradient-to-t from-emerald-600 to-emerald-400 rounded"
+              ></div>
+              <span class="text-xs text-slate-400">Asistencias</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 text-slate-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span class="text-xs text-slate-400"
+                >Pasa el cursor para ver detalles</span
+              >
             </div>
           </div>
         </div>
@@ -473,3 +566,21 @@ const getNoShowColor = (rate) => {
     />
   </section>
 </template>
+
+<style scoped>
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.animate-grow {
+  transform-origin: bottom;
+  animation: grow 0.8s ease-out forwards;
+}
+</style>

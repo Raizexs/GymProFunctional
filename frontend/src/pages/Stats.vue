@@ -400,10 +400,12 @@ function refreshData() {
 }
 
 function formatCurrency(amount) {
-  return new Intl.NumberFormat("es-ES", {
+  return new Intl.NumberFormat("es-CL", {
     style: "currency",
-    currency: "USD",
-  }).format(amount / 100);
+    currency: "CLP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 function formatDate(dateString) {

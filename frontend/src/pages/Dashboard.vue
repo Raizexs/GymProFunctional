@@ -31,10 +31,12 @@ function fmt(iso) {
 }
 
 function formatCurrency(amount) {
-  return new Intl.NumberFormat("es-ES", {
+  return new Intl.NumberFormat("es-CL", {
     style: "currency",
-    currency: "USD",
-  }).format(amount / 100);
+    currency: "CLP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
 
 async function load() {
@@ -413,6 +415,42 @@ onBeforeUnmount(() => {
     <div v-if="!statsLoading && dashboardStats" class="space-y-4">
       <!-- Para TRAINER -->
       <template v-if="userRole === 'TRAINER' || userRole === 'ADMIN'">
+        <div
+          class="backdrop-blur-xl bg-gradient-to-r from-teal-600/40 to-cyan-600/40 border border-teal-500/30 rounded-2xl p-8 shadow-2xl"
+        >
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-2xl font-bold text-white mb-2">📚 Mis Clases</h3>
+              <p class="text-teal-100">Revisa las reservas de tus clases</p>
+            </div>
+            <div
+              class="w-16 h-16 bg-teal-500/30 rounded-2xl flex items-center justify-center"
+            >
+              <span class="text-4xl">🎓</span>
+            </div>
+          </div>
+          <button
+            @click="router.push('/mis-clases')"
+            class="w-full md:w-auto px-8 py-3.5 bg-teal-500 text-white font-semibold rounded-xl hover:bg-teal-600 transform hover:scale-105 transition-all duration-300 shadow-lg"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 inline mr-2 -mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Ver Mis Clases
+          </button>
+        </div>
+
         <div
           class="backdrop-blur-xl bg-gradient-to-r from-emerald-600/40 to-green-600/40 border border-emerald-500/30 rounded-2xl p-8 shadow-2xl"
         >

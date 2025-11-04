@@ -14,7 +14,15 @@ const showRescheduleModal = ref(false);
 const reservationToReschedule = ref(null);
 
 async function load() {
-  items.value = await ReservationsService.mine();
+  try {
+    console.log("Cargando reservas...");
+    const reservations = await ReservationsService.mine();
+    items.value = reservations;
+    console.log("Reservas cargadas:", reservations.length, reservations);
+  } catch (error) {
+    console.error("Error al cargar reservas:", error);
+    items.value = [];
+  }
 }
 
 function askCancel(it) {
@@ -55,10 +63,31 @@ function closeReschedule() {
   reservationToReschedule.value = null;
 }
 
-function onRescheduleSuccess() {
-  load();
+async function onRescheduleSuccess() {
+  console.log("Reagendado exitoso, recargando reservas...");
+
+  // Cerrar el modal primero
+  showRescheduleModal.value = false;
+  reservationToReschedule.value = null;
+
+  // Recargar las reservas
+  await load();
+
+  // Emitir evento global para actualizar otras vistas
   window.dispatchEvent(new CustomEvent("reservation:changed"));
+
+  console.log("Reservas después de reagendar:", items.value.length);
 }
+
+// Función para formatear precios
+const formatPrice = (price) => {
+  return new Intl.NumberFormat("es-CL", {
+    style: "currency",
+    currency: "CLP",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price || 0);
+};
 
 // Computed para agrupar reservas por estado
 const pendingPaymentReservations = computed(() =>
@@ -168,7 +197,7 @@ onMounted(load);
                 📅 {{ new Date(r.date).toLocaleDateString("es-CL") }}
               </p>
               <p class="text-amber-300 text-sm mt-2 font-semibold">
-                💵 Precio: ${{ r.klass?.price?.toFixed(3) || "0.000" }}
+                💵 Precio: {{ formatPrice(r.klass?.price) }}
               </p>
             </div>
           </div>

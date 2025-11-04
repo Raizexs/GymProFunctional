@@ -139,7 +139,57 @@ function isActive(path) {
                 >
               </router-link>
 
+              <!-- Mis Clases (Solo Trainers y Admin) -->
               <router-link
+                v-if="
+                  auth.user?.role === 'TRAINER' || auth.user?.role === 'ADMIN'
+                "
+                to="/mis-clases"
+                class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
+                style="
+                  user-select: none;
+                  -webkit-user-select: none;
+                  pointer-events: auto;
+                  cursor: pointer;
+                "
+                :class="
+                  isActive('/mis-clases')
+                    ? 'bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg'
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                "
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 inline mr-1.5 -mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  style="
+                    user-select: none;
+                    -webkit-user-select: none;
+                    pointer-events: none;
+                  "
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <span
+                  style="
+                    user-select: none;
+                    -webkit-user-select: none;
+                    pointer-events: none;
+                  "
+                  >Mis Clases</span
+                >
+              </router-link>
+
+              <!-- Clases (Solo para USER y ADMIN) -->
+              <router-link
+                v-if="auth.user?.role === 'USER' || auth.user?.role === 'ADMIN'"
                 to="/clases"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
                 style="
@@ -183,7 +233,9 @@ function isActive(path) {
                 >
               </router-link>
 
+              <!-- Mis Reservas (Solo para USER y ADMIN) -->
               <router-link
+                v-if="auth.user?.role === 'USER' || auth.user?.role === 'ADMIN'"
                 to="/reservas"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
                 style="
@@ -227,7 +279,9 @@ function isActive(path) {
                 >
               </router-link>
 
+              <!-- Entrenadores (Solo para USER y ADMIN) -->
               <router-link
+                v-if="auth.user?.role === 'USER' || auth.user?.role === 'ADMIN'"
                 to="/entrenadores"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
                 style="
@@ -271,8 +325,9 @@ function isActive(path) {
                 >
               </router-link>
 
-              <!-- Planes -->
+              <!-- Planes (Solo para USER y ADMIN) -->
               <router-link
+                v-if="auth.user?.role === 'USER' || auth.user?.role === 'ADMIN'"
                 to="/planes"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
                 style="
@@ -364,11 +419,9 @@ function isActive(path) {
                 >
               </router-link>
 
-              <!-- KPIs (Solo Trainer y Admin) -->
+              <!-- KPIs (Solo Admin) -->
               <router-link
-                v-if="
-                  auth.user?.role === 'TRAINER' || auth.user?.role === 'ADMIN'
-                "
+                v-if="auth.user?.role === 'ADMIN'"
                 to="/kpis"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
                 style="

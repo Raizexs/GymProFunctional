@@ -8,6 +8,7 @@ import Stats from "@/pages/Stats.vue";
 import Asistencia from "@/pages/Asistencia.vue";
 import KPIs from "@/pages/KPIs.vue";
 import Planes from "@/pages/Planes.vue";
+import MisClases from "@/pages/MisClases.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const routes = [
@@ -30,6 +31,11 @@ const routes = [
   {
     path: "/kpis",
     component: KPIs,
+    meta: { requiresTrainer: true },
+  },
+  {
+    path: "/mis-clases",
+    component: MisClases,
     meta: { requiresTrainer: true },
   },
 ];
