@@ -10,8 +10,18 @@ router.get("/", async (_req, res) => {
     .populate("coachId", "name bio rating avatarUrl specialties")
     .lean();
 
-  // Obtener el conteo de reservas por clase
+  // Obtener el conteo de reservas ACTIVAS (CONFIRMED o PENDING_PAYMENT)
+  // solo para fechas futuras o de hoy
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Inicio del día de hoy
+
   const reservationCounts = await Reservation.aggregate([
+    {
+      $match: {
+        status: { $in: ["CONFIRMED", "PENDING_PAYMENT"] },
+        date: { $gte: today },
+      },
+    },
     {
       $group: {
         _id: "$classId",
@@ -35,6 +45,9 @@ router.get("/", async (_req, res) => {
     time: cls.time,
     durationMin: cls.durationMin,
     capacity: cls.capacity,
+    price: cls.price,
+    category: cls.category,
+    difficulty: cls.difficulty,
     reservedCount: countMap[cls._id.toString()] || 0,
     coachId: cls.coachId._id.toString(),
     coach: {

@@ -3,10 +3,11 @@ import { requireAuth } from "../middlewares/auth.middleware.js";
 import Plan from "../models/Plan.js";
 import UserPlan from "../models/UserPlan.js";
 import Payment from "../models/Payment.js";
+import { createNotification } from "../services/notification.service.js";
 
 const router = Router();
 
-router.use(requireAuth);
+// NO usar requireAuth aquí porque ya se aplica en server.js
 
 /**
  * GET /api/plans
@@ -29,7 +30,7 @@ router.get("/my", async (req, res) => {
   try {
     const userPlans = await UserPlan.find({
       userId: req.user.id,
-      status: { $in: ["ACTIVE", "EXPIRED"] },
+      status: { $in: ["PENDING_PAYMENT", "ACTIVE", "EXPIRED"] },
     })
       .populate("planId")
       .sort({ createdAt: -1 });
@@ -42,7 +43,7 @@ router.get("/my", async (req, res) => {
 
 /**
  * POST /api/plans/:id/purchase
- * Comprar un plan
+ * Iniciar compra de un plan (crear pago pendiente)
  */
 router.post("/:id/purchase", async (req, res) => {
   try {
@@ -66,18 +67,7 @@ router.post("/:id/purchase", async (req, res) => {
       });
     }
 
-    // Crear el pago
-    const payment = new Payment({
-      userId: req.user.id,
-      amount: plan.price,
-      status: "COMPLETED", // En producción esto sería PENDING hasta procesar con Stripe
-      method: "CARD",
-      description: `Plan ${plan.name}`,
-    });
-
-    await payment.save();
-
-    // Crear la suscripción
+    // Crear el UserPlan en estado PENDING_PAYMENT
     const startDate = new Date();
     const expiryDate = new Date(startDate);
     expiryDate.setDate(expiryDate.getDate() + plan.validityDays);
@@ -85,15 +75,30 @@ router.post("/:id/purchase", async (req, res) => {
     const userPlan = new UserPlan({
       userId: req.user.id,
       planId: plan._id,
-      status: "ACTIVE",
+      status: "PENDING_PAYMENT",
       creditsRemaining: plan.credits,
       creditsTotal: plan.credits,
       startDate,
       expiryDate,
       purchasePrice: plan.price,
-      paymentId: payment._id,
     });
 
+    await userPlan.save();
+
+    // Crear el pago en estado PENDING
+    const payment = new Payment({
+      userId: req.user.id,
+      userPlanId: userPlan._id,
+      amount: plan.price,
+      status: "PENDING",
+      method: "CARD",
+      description: `Plan ${plan.name}`,
+    });
+
+    await payment.save();
+
+    // Actualizar el userPlan con el paymentId
+    userPlan.paymentId = payment._id;
     await userPlan.save();
 
     const populatedUserPlan = await UserPlan.findById(userPlan._id).populate(
@@ -104,6 +109,7 @@ router.post("/:id/purchase", async (req, res) => {
       ok: true,
       userPlan: populatedUserPlan,
       payment,
+      requiresPayment: true,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -140,6 +146,94 @@ router.patch("/my/:id/cancel", async (req, res) => {
     await userPlan.save();
 
     res.json({ ok: true, userPlan });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/plans/payments/:paymentId/confirm
+ * Confirmar pago de un plan
+ */
+router.post("/payments/:paymentId/confirm", async (req, res) => {
+  try {
+    const payment = await Payment.findOne({
+      _id: req.params.paymentId,
+      userId: req.user.id,
+    });
+
+    if (!payment) {
+      return res.status(404).json({ error: "Pago no encontrado" });
+    }
+
+    if (payment.status === "COMPLETED") {
+      return res.status(400).json({ error: "Este pago ya fue procesado" });
+    }
+
+    // Actualizar el pago a COMPLETED
+    payment.status = "COMPLETED";
+    await payment.save();
+
+    // Actualizar el UserPlan a ACTIVE
+    const userPlan = await UserPlan.findById(payment.userPlanId).populate(
+      "planId"
+    );
+
+    if (userPlan) {
+      userPlan.status = "ACTIVE";
+      await userPlan.save();
+
+      const formatCurrency = (amount) => {
+        return new Intl.NumberFormat("es-CL", {
+          style: "currency",
+          currency: "CLP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(amount);
+      };
+
+      const formatDate = (date) => {
+        return new Date(date).toLocaleDateString("es-ES", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      };
+
+      // Crear notificación de compra confirmada
+      await createNotification({
+        userId: payment.userId,
+        type: "PLAN_PURCHASED",
+        title: "🎉 ¡Plan Adquirido Exitosamente!",
+        message: `Has adquirido el plan ${
+          userPlan.planId.name
+        } por ${formatCurrency(payment.amount)}. Tu plan está activo y tienes ${
+          userPlan.creditsTotal
+        } créditos disponibles.`,
+        relatedId: userPlan._id,
+        relatedModel: "UserPlan",
+        sentVia: ["EMAIL", "IN_APP"],
+        metadata: {
+          planName: userPlan.planId.name,
+          amount: payment.amount,
+          credits: userPlan.creditsTotal,
+          expiryDate: userPlan.expiryDate,
+          actionUrl: "http://localhost:5173/planes",
+          actionText: "Ver Mi Plan",
+        },
+      });
+
+      console.log(
+        `✅ Notificación de plan adquirido enviada al usuario ${payment.userId}`
+      );
+    }
+
+    res.json({
+      ok: true,
+      payment,
+      userPlan,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

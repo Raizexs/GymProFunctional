@@ -25,6 +25,7 @@ import paymentsRouter from "./routes/payments.routes.js";
 import notificationsRouter from "./routes/notifications.routes.js";
 import statsRouter from "./routes/stats.routes.js";
 import plansRouter from "./routes/plans.routes.js";
+import trainerClassesRouter from "./routes/trainer-classes.routes.js";
 import { requireAuth } from "./middlewares/auth.middleware.js";
 
 // Conectar a MongoDB
@@ -37,7 +38,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const ORIGIN = process.env.CORS_ORIGIN || "http://localhost:5173";
 
-app.use(cors({ origin: ORIGIN, credentials: true }));
+// Permitir múltiples orígenes para desarrollo
+const corsOptions = {
+  origin: ["http://localhost:5173", "http://localhost:5174", ORIGIN],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
@@ -53,5 +60,18 @@ app.use("/api/payments", requireAuth, paymentsRouter);
 app.use("/api/notifications", requireAuth, notificationsRouter);
 app.use("/api/stats", requireAuth, statsRouter);
 app.use("/api/plans", requireAuth, plansRouter);
+app.use("/api/trainer", requireAuth, trainerClassesRouter);
+
+console.log("✅ Rutas registradas:");
+console.log("   - /api/auth");
+console.log("   - /api/trainers");
+console.log("   - /api/classes");
+console.log("   - /api/reservations");
+console.log("   - /api/me");
+console.log("   - /api/payments (protegida)");
+console.log("   - /api/notifications (protegida)");
+console.log("   - /api/stats (protegida)");
+console.log("   - /api/plans (protegida)");
+console.log("   - /api/trainer (protegida)");
 
 app.listen(PORT, () => console.log(`API http://localhost:${PORT}`));

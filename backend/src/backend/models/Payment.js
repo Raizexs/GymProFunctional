@@ -10,7 +10,12 @@ const paymentSchema = new mongoose.Schema(
     reservationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Reservation",
-      required: true,
+      required: false, // No requerido para compra de planes
+    },
+    userPlanId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserPlan",
+      required: false, // Solo para pagos de planes
     },
     amount: {
       type: Number,
@@ -27,12 +32,20 @@ const paymentSchema = new mongoose.Schema(
     },
     stripePaymentIntentId: {
       type: String,
-      required: true,
+      required: false, // No requerido para pagos mock o compra de planes
     },
     stripeClientSecret: {
       type: String,
     },
+    method: {
+      type: String,
+      enum: ["CARD", "CASH", "TRANSFER", "PLAN", "FREE"],
+      default: "CARD",
+    },
     paymentMethod: {
+      type: String,
+    },
+    description: {
       type: String,
     },
     receipt: {

@@ -13,7 +13,7 @@ import connectDB from "./config/database.js";
 const trainersData = [
   {
     name: "Carlos Martínez",
-    email: "carlos@gym.com",
+    email: "trainer@gym.com", // Mismo email que el usuario TRAINER
     bio: "Entrenador certificado con 10 años de experiencia en fitness funcional",
     rating: 4.8,
     avatarUrl:
@@ -183,7 +183,7 @@ async function seed() {
         time: "07:00",
         durationMin: 60,
         capacity: 15,
-        price: 15,
+        price: 15000,
         category: "CROSSFIT",
         difficulty: "INTERMEDIATE",
         coachId: trainers[0]._id,
@@ -198,7 +198,7 @@ async function seed() {
         time: "18:00",
         durationMin: 60,
         capacity: 20,
-        price: 12,
+        price: 12000,
         category: "YOGA",
         difficulty: "BEGINNER",
         coachId: trainers[1]._id,
@@ -212,7 +212,7 @@ async function seed() {
         time: "19:00",
         durationMin: 45,
         capacity: 12,
-        price: 18,
+        price: 18000,
         category: "CARDIO",
         difficulty: "ADVANCED",
         coachId: trainers[0]._id,
@@ -226,7 +226,7 @@ async function seed() {
         time: "08:00",
         durationMin: 50,
         capacity: 15,
-        price: 14,
+        price: 14000,
         category: "STRENGTH",
         difficulty: "INTERMEDIATE",
         coachId: trainers[2]._id,
@@ -240,7 +240,7 @@ async function seed() {
         time: "17:00",
         durationMin: 55,
         capacity: 12,
-        price: 13,
+        price: 13000,
         category: "PILATES",
         difficulty: "BEGINNER",
         coachId: trainers[1]._id,
@@ -254,7 +254,7 @@ async function seed() {
         time: "20:00",
         durationMin: 60,
         capacity: 18,
-        price: 16,
+        price: 16000,
         category: "OTHER",
         difficulty: "INTERMEDIATE",
         coachId: trainers[3]._id,
@@ -305,7 +305,7 @@ async function seed() {
         name: "Básico",
         description: "Perfecto para comenzar tu viaje fitness",
         type: "MONTHLY",
-        price: 3900, // $39.00
+        price: 39000,
         credits: 8,
         validityDays: 30,
         features: [
@@ -322,7 +322,7 @@ async function seed() {
         name: "Premium",
         description: "La mejor opción para entrenar regularmente",
         type: "MONTHLY",
-        price: 5900, // $59.00
+        price: 59000,
         credits: 20,
         validityDays: 30,
         features: [
@@ -341,7 +341,7 @@ async function seed() {
         name: "Ilimitado",
         description: "Entrena sin límites",
         type: "MONTHLY",
-        price: 9900, // $99.00
+        price: 99000,
         credits: 999,
         validityDays: 30,
         features: [
@@ -361,7 +361,7 @@ async function seed() {
         name: "Pack 10 Clases",
         description: "Flexibilidad para entrenar a tu ritmo",
         type: "CREDITS_PACK",
-        price: 4500, // $45.00
+        price: 45000,
         credits: 10,
         validityDays: 60,
         features: [
@@ -378,7 +378,7 @@ async function seed() {
         name: "Trimestral Premium",
         description: "3 meses de entrenamiento a precio especial",
         type: "QUARTERLY",
-        price: 15900, // $159.00
+        price: 159000,
         credits: 60,
         validityDays: 90,
         features: [
@@ -397,7 +397,7 @@ async function seed() {
         name: "Anual VIP",
         description: "El mejor precio del año",
         type: "ANNUAL",
-        price: 59900, // $599.00
+        price: 599000,
         credits: 300,
         validityDays: 365,
         features: [

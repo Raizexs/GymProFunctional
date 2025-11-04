@@ -14,8 +14,8 @@ const userPlanSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["ACTIVE", "EXPIRED", "CANCELLED"],
-      default: "ACTIVE",
+      enum: ["PENDING_PAYMENT", "ACTIVE", "EXPIRED", "CANCELLED"],
+      default: "PENDING_PAYMENT",
     },
     creditsRemaining: {
       type: Number,

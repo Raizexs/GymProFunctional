@@ -135,9 +135,11 @@ export async function confirmPayment({ paymentIntentId }) {
       };
 
       const formatCurrency = (amount) => {
-        return new Intl.NumberFormat("es-ES", {
+        return new Intl.NumberFormat("es-CL", {
           style: "currency",
-          currency: "USD",
+          currency: "CLP",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
         }).format(amount);
       };
 

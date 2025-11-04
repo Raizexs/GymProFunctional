@@ -201,8 +201,14 @@ async function getAdminStats({ start, end }) {
  * Estadísticas para entrenador
  */
 async function getTrainerStats({ start, end, userId }) {
-  // Obtener el entrenador
-  const trainer = await Trainer.findOne({ email: userId });
+  // Obtener el usuario primero para conseguir su email
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("Usuario no encontrado");
+  }
+
+  // Obtener el entrenador por email
+  const trainer = await Trainer.findOne({ email: user.email });
 
   if (!trainer) {
     throw new Error("Entrenador no encontrado");
