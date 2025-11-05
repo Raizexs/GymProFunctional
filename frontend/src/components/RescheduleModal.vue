@@ -13,6 +13,40 @@ const newDate = ref("");
 const loading = ref(false);
 const error = ref("");
 
+// Verificar si se puede reagendar (al menos 2 horas antes)
+const canReschedule = computed(() => {
+  if (!props.reservation?.date || !props.reservation?.klass?.time) return true;
+
+  const classTime = props.reservation.klass.time; // Ejemplo: "08:00"
+  const [hours, minutes] = classTime.split(":").map(Number);
+
+  const classDateTime = new Date(props.reservation.date);
+  classDateTime.setHours(hours, minutes, 0, 0);
+
+  const now = new Date();
+  const hoursUntilClass = (classDateTime - now) / (1000 * 60 * 60);
+
+  return hoursUntilClass >= 2;
+});
+
+const timeUntilClass = computed(() => {
+  if (!props.reservation?.date || !props.reservation?.klass?.time) return "";
+
+  const classTime = props.reservation.klass.time;
+  const [hours, minutes] = classTime.split(":").map(Number);
+
+  const classDateTime = new Date(props.reservation.date);
+  classDateTime.setHours(hours, minutes, 0, 0);
+
+  const now = new Date();
+  const hoursUntilClass = (classDateTime - now) / (1000 * 60 * 60);
+
+  if (hoursUntilClass < 0) return "La clase ya ocurrió";
+  if (hoursUntilClass < 2)
+    return `Faltan ${Math.round(hoursUntilClass * 60)} minutos`;
+  return `Faltan ${Math.round(hoursUntilClass)} horas`;
+});
+
 // Calcular fecha mínima (mañana)
 const minDate = computed(() => {
   const tomorrow = new Date();
@@ -60,6 +94,12 @@ const isValidDay = (dateString) => {
 
 async function handleReschedule() {
   error.value = "";
+
+  if (!canReschedule.value) {
+    error.value =
+      "No puedes reagendar esta reserva. Debe hacerse con al menos 2 horas de anticipación.";
+    return;
+  }
 
   if (!newDate.value) {
     error.value = "Por favor selecciona una nueva fecha";
@@ -212,9 +252,40 @@ watch(
               📅 Fecha actual:
               {{ new Date(reservation?.date).toLocaleDateString("es-CL") }}
             </p>
-            <p class="text-blue-300 text-sm">
+            <p class="text-blue-300 text-sm mb-2">
               📌 Días disponibles: {{ reservation?.klass?.days?.join(", ") }}
             </p>
+            <p
+              class="text-sm font-semibold"
+              :class="canReschedule ? 'text-emerald-400' : 'text-red-400'"
+            >
+              ⏰ {{ timeUntilClass }}
+            </p>
+          </div>
+
+          <!-- Alerta si no se puede reagendar -->
+          <div
+            v-if="!canReschedule"
+            class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4 text-red-300 text-sm flex items-start gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5 flex-shrink-0 mt-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span
+              >No puedes reagendar esta reserva porque faltan menos de 2 horas
+              para la clase o ya ocurrió.</span
+            >
           </div>
 
           <!-- Formulario -->
@@ -285,7 +356,7 @@ watch(
               </button>
               <button
                 @click="handleReschedule"
-                :disabled="loading || !newDate"
+                :disabled="loading || !newDate || !canReschedule"
                 class="flex-1 px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold hover:from-blue-600 hover:to-indigo-700 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:transform-none"
               >
                 <span
