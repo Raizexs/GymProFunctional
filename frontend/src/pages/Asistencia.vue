@@ -68,10 +68,11 @@ const toggleAttendance = async (reservation) => {
     reservation.attended = newAttendedValue;
     reservation.status = newAttendedValue ? "COMPLETED" : "CONFIRMED";
 
-    showToast(
-      newAttendedValue ? "✅ Asistencia marcada" : "❌ Asistencia desmarcada",
-      "success"
-    );
+    const message = newAttendedValue
+      ? "✅ Asistencia marcada"
+      : "❌ No-show registrado. Si el usuario tiene 3+ ausencias en 30 días, se aplicará penalización.";
+
+    showToast(message, "success");
   } catch (e) {
     showToast(
       e?.response?.data?.error || "Error al actualizar asistencia",
