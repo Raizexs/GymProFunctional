@@ -501,9 +501,13 @@ const getNoShowColor = (rate) => {
       "
       class="backdrop-blur-xl bg-gradient-to-r from-red-600/40 to-orange-600/40 border border-red-500/30 rounded-2xl p-6 shadow-2xl"
     >
-      <h3 class="text-xl font-bold text-white mb-4">
+      <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
         ⚠️ Usuarios con Más No-Shows
       </h3>
+      <p class="text-red-200 text-sm mb-4">
+        💡 Los usuarios con 3+ ausencias en 30 días reciben penalización de 1
+        crédito adicional por cada nuevo no-show.
+      </p>
       <div class="space-y-3">
         <div
           v-for="user in kpis.usersWithMostNoShows"
@@ -511,7 +515,15 @@ const getNoShowColor = (rate) => {
           class="flex items-center justify-between bg-white/10 rounded-xl p-4 hover:bg-white/15 transition-colors"
         >
           <div>
-            <p class="font-bold text-white">{{ user.userName }}</p>
+            <p class="font-bold text-white flex items-center gap-2">
+              {{ user.userName }}
+              <span
+                v-if="user.noShowCount >= 3"
+                class="text-xs bg-red-600 px-2 py-1 rounded-full"
+              >
+                🚫 PENALIZADO
+              </span>
+            </p>
             <p class="text-sm text-slate-300">{{ user.userEmail }}</p>
           </div>
           <div class="text-right">
