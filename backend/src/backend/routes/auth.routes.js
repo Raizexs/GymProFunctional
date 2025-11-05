@@ -5,7 +5,8 @@ import User from "../models/User.js";
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_change_me";
-const sign = (p) => jwt.sign(p, JWT_SECRET, { expiresIn: "7d" });
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "30m"; // 30 minutos por defecto
+const sign = (p) => jwt.sign(p, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
 router.post("/auth/register", async (req, res) => {
   try {
