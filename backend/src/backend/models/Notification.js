@@ -15,6 +15,7 @@ const notificationSchema = new mongoose.Schema(
         "PAYMENT_CONFIRMATION",
         "RESERVATION_CONFIRMED",
         "RESERVATION_CANCELLED",
+        "PLAN_PURCHASED",
         "PROMOTION",
         "GENERAL",
       ],
@@ -43,7 +44,7 @@ const notificationSchema = new mongoose.Schema(
     },
     relatedModel: {
       type: String,
-      enum: ["Reservation", "Payment", "Class"],
+      enum: ["Reservation", "Payment", "Class", "UserPlan"],
     },
     metadata: {
       type: mongoose.Schema.Types.Mixed,
