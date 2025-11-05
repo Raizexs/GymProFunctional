@@ -210,8 +210,9 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Banner hero -->
+    <!-- Banner hero (Solo para USER y ADMIN) -->
     <div
+      v-if="userRole === 'USER' || userRole === 'ADMIN'"
       class="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-gradient-to-r from-indigo-600/40 to-purple-600/40 border border-white/20 shadow-2xl"
     >
       <div
@@ -250,8 +251,9 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Tarjeta de próxima reserva -->
+    <!-- Tarjeta de próxima reserva (Solo para USER y ADMIN) -->
     <div
+      v-if="userRole === 'USER' || userRole === 'ADMIN'"
       class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-8 shadow-2xl"
     >
       <template v-if="summary.nextReservation">
