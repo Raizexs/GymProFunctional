@@ -91,6 +91,54 @@ onMounted(async () => {
       {{ err }}
     </p>
 
+    <!-- Mensaje cuando no hay entrenadores -->
+    <div
+      v-if="items.length === 0 && !err"
+      class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl text-center"
+      style="user-select: none; -webkit-user-select: none"
+      unselectable="on"
+    >
+      <div
+        class="w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-3xl flex items-center justify-center mx-auto mb-4"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-10 w-10 text-indigo-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          style="
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: none;
+          "
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+          />
+        </svg>
+      </div>
+      <p
+        class="text-slate-300 text-lg"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        No hay entrenadores disponibles en este momento.
+      </p>
+      <p
+        class="text-slate-400 text-sm mt-2"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        Vuelve pronto para conocer a nuestro equipo
+      </p>
+    </div>
+
     <!-- Grid de entrenadores -->
     <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
       <article

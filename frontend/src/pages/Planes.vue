@@ -278,6 +278,37 @@ const handlePaymentClose = () => {
     <!-- Grid de Planes Disponibles -->
     <div>
       <h3 class="text-2xl font-bold text-white mb-4">Planes Disponibles</h3>
+
+      <!-- Mensaje cuando no hay planes disponibles -->
+      <div
+        v-if="plans.length === 0 && !loading"
+        class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl text-center"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        <div
+          class="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 rounded-3xl flex items-center justify-center mx-auto mb-4"
+          style="user-select: none; -webkit-user-select: none"
+          unselectable="on"
+        >
+          <span class="text-4xl">💳</span>
+        </div>
+        <p
+          class="text-slate-300 text-lg"
+          style="user-select: none; -webkit-user-select: none"
+          unselectable="on"
+        >
+          No hay planes disponibles en este momento.
+        </p>
+        <p
+          class="text-slate-400 text-sm mt-2"
+          style="user-select: none; -webkit-user-select: none"
+          unselectable="on"
+        >
+          Vuelve pronto para ver las nuevas opciones
+        </p>
+      </div>
+
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <article
           v-for="plan in plans"

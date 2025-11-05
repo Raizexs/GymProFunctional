@@ -106,6 +106,13 @@ const cancelledReservations = computed(() =>
   items.value.filter((r) => r.status === "CANCELLED")
 );
 
+// Computed para verificar si hay reservas activas
+const hasActiveReservations = computed(
+  () =>
+    pendingPaymentReservations.value.length > 0 ||
+    confirmedReservations.value.length > 0
+);
+
 onMounted(load);
 </script>
 <template>
@@ -283,9 +290,9 @@ onMounted(load);
       </article>
     </div>
 
-    <!-- Mensaje cuando no hay reservas -->
+    <!-- Mensaje cuando no hay reservas activas -->
     <div
-      v-if="!items.length"
+      v-if="!hasActiveReservations"
       class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl text-center"
       style="user-select: none; -webkit-user-select: none"
       unselectable="on"

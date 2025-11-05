@@ -427,6 +427,54 @@ onMounted(load);
       </article>
     </div>
 
+    <!-- Mensaje cuando no hay clases disponibles -->
+    <div
+      v-if="items.length === 0"
+      class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl text-center"
+      style="user-select: none; -webkit-user-select: none"
+      unselectable="on"
+    >
+      <div
+        class="w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 rounded-3xl flex items-center justify-center mx-auto mb-4"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-10 w-10 text-indigo-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          style="
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: none;
+          "
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+      </div>
+      <p
+        class="text-slate-300 text-lg"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        No hay clases disponibles en este momento.
+      </p>
+      <p
+        class="text-slate-400 text-sm mt-2"
+        style="user-select: none; -webkit-user-select: none"
+        unselectable="on"
+      >
+        Vuelve pronto para ver las nuevas clases
+      </p>
+    </div>
+
     <ReserveModal
       :open="open"
       :klass="selected"
