@@ -374,7 +374,7 @@ const groupBy = ref("day");
 // Verificar que el usuario sea admin
 onMounted(() => {
   if (authStore.user?.role !== "ADMIN") {
-    router.replace("/");
+    router.replace("/dashboard");
     return;
   }
   loadRevenueReport();

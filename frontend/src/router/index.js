@@ -13,7 +13,7 @@ import { useAuthStore } from "@/stores/auth";
 
 const routes = [
   { path: "/auth", component: Auth },
-  { path: "/", component: Dashboard },
+  { path: "/dashboard", component: Dashboard },
   { path: "/clases", component: Clases },
   { path: "/reservas", component: Reservas },
   { path: "/entrenadores", component: Entrenadores },
@@ -38,6 +38,14 @@ const routes = [
     component: MisClases,
     meta: { requiresTrainer: true },
   },
+  // Redirección de la raíz
+  {
+    path: "/",
+    redirect: (to) => {
+      const auth = useAuthStore();
+      return auth.isAuthenticated ? "/dashboard" : "/auth";
+    },
+  },
 ];
 
 const router = createRouter({
@@ -53,12 +61,12 @@ router.beforeEach((to, _from, next) => {
   }
 
   if (to.path === "/auth" && auth.isAuthenticated) {
-    return next("/");
+    return next("/dashboard");
   }
 
   // Verificar si la ruta requiere permisos de admin
   if (to.meta.requiresAdmin && auth.user?.role !== "ADMIN") {
-    return next("/");
+    return next("/dashboard");
   }
 
   // Verificar si la ruta requiere permisos de trainer o admin
@@ -67,7 +75,7 @@ router.beforeEach((to, _from, next) => {
     auth.user?.role !== "TRAINER" &&
     auth.user?.role !== "ADMIN"
   ) {
-    return next("/");
+    return next("/dashboard");
   }
 
   next();

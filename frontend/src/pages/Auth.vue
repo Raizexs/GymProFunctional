@@ -17,7 +17,7 @@ const error = ref("");
 const cursorX = ref(0);
 const cursorY = ref(0);
 
-const go = (p = "/") => router.replace(route.query.redirect || p);
+const go = (p = "/dashboard") => router.replace(route.query.redirect || p);
 
 // Seguimiento del cursor
 const handleMouseMove = (e) => {
@@ -29,7 +29,7 @@ async function submitLogin() {
   error.value = "";
   try {
     await auth.login(email.value, password.value);
-    go("/");
+    go("/dashboard");
   } catch (e) {
     error.value = e?.response?.data?.error || "No se pudo iniciar sesión";
   }
@@ -39,7 +39,7 @@ async function submitRegister() {
   error.value = "";
   try {
     await auth.register(name.value, email.value, password.value);
-    go("/");
+    go("/dashboard");
   } catch (e) {
     error.value = e?.response?.data?.error || "No se pudo registrar";
   }
@@ -47,7 +47,7 @@ async function submitRegister() {
 
 onMounted(() => {
   auth.loadFromStorage?.();
-  if (auth.isAuthenticated) go("/");
+  if (auth.isAuthenticated) go("/dashboard");
   window.addEventListener("mousemove", handleMouseMove);
 });
 

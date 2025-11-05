@@ -96,7 +96,7 @@ function isActive(path) {
               unselectable="on"
             >
               <router-link
-                to="/"
+                to="/dashboard"
                 class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 select-none"
                 style="
                   user-select: none;
@@ -105,7 +105,7 @@ function isActive(path) {
                   cursor: pointer;
                 "
                 :class="
-                  isActive('/')
+                  isActive('/dashboard')
                     ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
                     : 'text-slate-300 hover:text-white hover:bg-white/10'
                 "
