@@ -16,11 +16,11 @@ router.get("/my-classes", async (req, res) => {
     const userId = req.user.id; // Cambiado de userId a id
     const userRole = req.user.role;
 
-    // Verificar que el usuario sea TRAINER
-    if (userRole !== "TRAINER") {
+    // Verificar que el usuario sea TRAINER o ADMIN
+    if (userRole !== "TRAINER" && userRole !== "ADMIN") {
       return res.status(403).json({
         error:
-          "Acceso denegado. Solo los entrenadores pueden acceder a esta información.",
+          "Acceso denegado. Solo los entrenadores y administradores pueden acceder a esta información.",
       });
     }
 
@@ -32,16 +32,24 @@ router.get("/my-classes", async (req, res) => {
 
     // Buscar el entrenador por email
     const trainer = await Trainer.findOne({ email: user.email });
-    if (!trainer) {
+
+    // Si es ADMIN y no tiene perfil de trainer, obtener todas las clases
+    let classes;
+    if (userRole === "ADMIN" && !trainer) {
+      // Admin sin perfil de trainer: obtener TODAS las clases
+      classes = await Class.find()
+        .populate("coachId", "name bio rating avatarUrl specialties")
+        .lean();
+    } else if (!trainer) {
       return res.status(404).json({
         error: "No se encontró un perfil de entrenador asociado",
       });
+    } else {
+      // Obtener todas las clases del entrenador específico
+      classes = await Class.find({ coachId: trainer._id })
+        .populate("coachId", "name bio rating avatarUrl specialties")
+        .lean();
     }
-
-    // Obtener todas las clases del entrenador
-    const classes = await Class.find({ coachId: trainer._id })
-      .populate("coachId", "name bio rating avatarUrl specialties")
-      .lean();
 
     // Para cada clase, obtener todas sus reservas activas con información del usuario
     const classesWithReservations = await Promise.all(
@@ -95,15 +103,25 @@ router.get("/my-classes", async (req, res) => {
     );
 
     res.json({
-      trainer: {
-        id: trainer._id.toString(),
-        name: trainer.name,
-        email: trainer.email,
-        bio: trainer.bio,
-        rating: trainer.rating,
-        avatarUrl: trainer.avatarUrl,
-        specialties: trainer.specialties,
-      },
+      trainer: trainer
+        ? {
+            id: trainer._id.toString(),
+            name: trainer.name,
+            email: trainer.email,
+            bio: trainer.bio,
+            rating: trainer.rating,
+            avatarUrl: trainer.avatarUrl,
+            specialties: trainer.specialties,
+          }
+        : {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            bio: "Administrador del sistema",
+            rating: 5,
+            avatarUrl: null,
+            specialties: ["Administración", "Gestión"],
+          },
       classes: classesWithReservations,
     });
   } catch (error) {
