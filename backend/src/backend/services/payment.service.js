@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import Payment from "../models/Payment.js";
 import Reservation from "../models/Reservation.js";
+import UserPlan from "../models/UserPlan.js";
 import Class from "../models/Class.js";
 import { createNotification } from "./notification.service.js";
 
@@ -124,6 +125,21 @@ export async function confirmPayment({ paymentIntentId }) {
     if (reservation) {
       reservation.status = "CONFIRMED";
       await reservation.save();
+
+      // Descontar 1 crédito del plan activo del usuario
+      const activePlan = await UserPlan.findOne({
+        userId: reservation.userId._id,
+        status: "ACTIVE",
+        expiryDate: { $gt: new Date() },
+      });
+
+      if (activePlan && activePlan.creditsRemaining > 0) {
+        activePlan.creditsRemaining -= 1;
+        await activePlan.save();
+        console.log(
+          `✅ Crédito descontado. Créditos restantes: ${activePlan.creditsRemaining}`
+        );
+      }
 
       const formatDate = (date) => {
         return new Date(date).toLocaleDateString("es-ES", {
