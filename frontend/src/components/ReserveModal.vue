@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { ReservationsService } from "@/services/reservations";
+import { PlansService } from "@/services/plans";
 
 const props = defineProps({
   open: Boolean,
@@ -12,6 +13,35 @@ const emit = defineEmits(["close", "created", "success"]);
 
 const error = ref("");
 const date = ref("");
+const activePlan = ref(null);
+const loadingPlan = ref(false);
+
+// Cargar el plan activo cuando se abre el modal
+watch(
+  () => props.open,
+  async (isOpen) => {
+    if (isOpen) {
+      error.value = "";
+      date.value = "";
+      await loadActivePlan();
+    }
+  }
+);
+
+async function loadActivePlan() {
+  try {
+    loadingPlan.value = true;
+    const plans = await PlansService.myPlans();
+    activePlan.value = plans.find(
+      (p) => p.status === "ACTIVE" && new Date(p.expiryDate) > new Date()
+    );
+  } catch (e) {
+    console.error("Error loading active plan:", e);
+    activePlan.value = null;
+  } finally {
+    loadingPlan.value = false;
+  }
+}
 
 const daysLabel = computed(() => (props.klass?.days || []).join(", "));
 
@@ -282,10 +312,70 @@ async function confirm() {
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
-            con {{ klass?.coach?.name }}
+            {{ klass?.coach?.name }}
+          </p>
+          <p class="text-slate-400 text-sm mt-2">
+            📅 Días:
+            <span class="text-indigo-400 font-semibold">{{ daysLabel }}</span>
           </p>
         </div>
 
+        <!-- Información del plan activo -->
+        <div
+          v-if="!loadingPlan && activePlan"
+          class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-4"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-emerald-300 text-sm font-semibold">
+                ✨ Plan Activo
+              </p>
+              <p class="text-white font-bold">{{ activePlan.planId.name }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold text-emerald-400">
+                {{ activePlan.creditsRemaining }}
+              </p>
+              <p class="text-emerald-200 text-xs">créditos disponibles</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerta si no hay plan activo -->
+        <div
+          v-if="!loadingPlan && !activePlan"
+          class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4 flex items-start gap-3"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <div>
+            <p class="text-amber-300 font-semibold">
+              ⚠️ No tienes un plan activo
+            </p>
+            <p class="text-amber-200 text-sm mt-1">
+              Necesitas adquirir un plan antes de reservar.
+              <a
+                href="/planes"
+                class="underline hover:text-white transition-colors"
+                >Ver planes disponibles</a
+              >
+            </p>
+          </div>
+        </div>
+
+        <!-- Formulario -->
         <!-- Selección de fecha -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-slate-200 mb-2">
