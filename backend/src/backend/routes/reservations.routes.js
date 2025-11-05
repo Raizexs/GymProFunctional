@@ -111,22 +111,20 @@ router.delete("/:id", async (req, res) => {
   try {
     const { cancellationReason } = req.body;
 
-    const reservation = await Reservation.findById(req.params.id);
+    const result = await cancelReservationHard({
+      userId: req.user.id,
+      reservationId: req.params.id,
+    });
 
-    if (!reservation || reservation.userId.toString() !== req.user.id) {
-      return res.status(404).json({ error: "Reserva no encontrada" });
-    }
-
-    // Actualizar a cancelado en lugar de eliminar
-    reservation.status = "CANCELLED";
-    reservation.cancellationReason =
-      cancellationReason || "Sin motivo especificado";
-    reservation.cancelledAt = new Date();
-    await reservation.save();
-
-    res.json({ ok: true, reservation });
+    res.json({
+      ok: true,
+      creditRefunded: result.creditRefunded,
+      message: result.creditRefunded
+        ? "Reserva cancelada exitosamente. Se ha devuelto 1 crédito a tu plan."
+        : "Reserva cancelada exitosamente.",
+    });
   } catch (e) {
-    res.status(400).json({ error: e.message });
+    res.status(e.status || 400).json({ error: e.message });
   }
 });
 
@@ -179,16 +177,78 @@ router.patch("/:id/attendance", async (req, res) => {
         .json({ error: "No tienes permisos para marcar asistencia" });
     }
 
-    const reservation = await Reservation.findById(req.params.id);
+    const reservation = await Reservation.findById(req.params.id).populate(
+      "userId"
+    );
 
     if (!reservation) {
       return res.status(404).json({ error: "Reserva no encontrada" });
     }
 
+    const wasAttended = reservation.attended;
     reservation.attended = attended;
 
     // Si se marca como asistido, cambiar el estado a COMPLETED
     if (attended && reservation.status === "CONFIRMED") {
+      reservation.status = "COMPLETED";
+    }
+
+    // Si se marca como NO asistido (no-show), aplicar penalización
+    if (
+      !attended &&
+      attended !== wasAttended &&
+      reservation.status === "CONFIRMED"
+    ) {
+      // Contar cuántos no-shows tiene el usuario en los últimos 30 días
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const noShowCount = await Reservation.countDocuments({
+        userId: reservation.userId._id,
+        attended: false,
+        status: "COMPLETED",
+        date: { $gte: thirtyDaysAgo },
+      });
+
+      // Si tiene 3 o más no-shows, descontar crédito adicional como penalización
+      if (noShowCount >= 2) {
+        const UserPlan = (await import("../models/UserPlan.js")).default;
+        const activePlan = await UserPlan.findOne({
+          userId: reservation.userId._id,
+          status: "ACTIVE",
+          expiryDate: { $gt: new Date() },
+        });
+
+        if (activePlan && activePlan.creditsRemaining > 0) {
+          activePlan.creditsRemaining -= 1;
+          await activePlan.save();
+
+          // Crear notificación de penalización
+          const { createNotification } = await import(
+            "../services/notification.service.js"
+          );
+          await createNotification({
+            userId: reservation.userId._id,
+            type: "GENERAL",
+            title: "⚠️ Penalización por No-Show",
+            message: `Has acumulado ${
+              noShowCount + 1
+            } ausencias en el último mes. Se ha descontado 1 crédito adicional de tu plan como penalización.`,
+            sentVia: ["EMAIL", "IN_APP"],
+            metadata: {
+              noShowCount: noShowCount + 1,
+              creditsRemaining: activePlan.creditsRemaining,
+            },
+          });
+
+          console.log(
+            `⚠️ Penalización aplicada al usuario ${
+              reservation.userId._id
+            }. No-shows: ${noShowCount + 1}`
+          );
+        }
+      }
+
       reservation.status = "COMPLETED";
     }
 
