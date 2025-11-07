@@ -99,22 +99,40 @@ El objetivo es construir un sistema **full-stack** que permita gestionar las ope
 
 ### 📋 Prerrequisitos
 
-```bash
-Node.js >= 18
-MongoDB Atlas (gratis) o MongoDB local
-npm o yarn
+Requisitos mínimos:
+
+```powershell
+# Windows PowerShell
+node --version   # >= 18
+npm --version    # >= 9
 ```
+
+**Servicios externos necesarios:**
+
+- ✅ **MongoDB Atlas** (gratis) → [Crear cuenta](https://www.mongodb.com/cloud/atlas/register)
+- 🔧 **Stripe** (modo test) → [Obtener API keys](https://dashboard.stripe.com/test/apikeys)_(Opcional para pagos)_
+- 📧 **SMTP/Gmail** → [App passwords](https://myaccount.google.com/apppasswords)_(Opcional para emails)_
+
+> **💡 Tip:** Para obtener las credenciales:
+
+> - **MongoDB URI**: Ve a Atlas → Connect → Drivers y copia la cadena de conexión
+
+> - **JWT_SECRET**: Genera uno con: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+
+> - **Stripe Keys**: Dashboard → Developers → API Keys (usa modo test)
+
+> - **SMTP Gmail**: Configura verificación en 2 pasos → App passwords
 
 ### 1️⃣ Clonar repositorio
 
-```bash
+```powershell
 git clone https://github.com/Raizexs/GymProFunctional
 cd gym-pro-funcional
 ```
 
 ### 2️⃣ Configurar Backend
 
-```bash
+```powershell
 cd backend
 npm install
 ```
@@ -126,28 +144,35 @@ MONGODB_URI=mongodb+srv://usuario:password@cluster.mongodb.net/gym-pro-funcional
 PORT=3000
 CORS_ORIGIN=http://localhost:5173
 JWT_SECRET=tu_secreto_super_seguro
+USE_TRANSACTIONS=false
 STRIPE_SECRET_KEY=sk_test_tu_clave_stripe
+STRIPE_PUBLISHABLE_KEY=pk_test_tu_clave_publica
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
 SMTP_USER=tu-email@gmail.com
-SMTP_PASS=tu_contraseña_aplicacion
+SMTP_PASS=xxxx xxxx xxxx xxxx
+SMTP_FROM="Gimnasio Pro <noreply@gympro.com>"
 ```
 
 ### 3️⃣ Poblar base de datos
 
-```bash
+```powershell
 npm run seed
 ```
 
 ### 4️⃣ Iniciar Backend
 
-```bash
+```powershell
 npm run dev
 ```
 
 El servidor estará en `http://localhost:3000`
 
-### 5️⃣ Configurar Frontend
+### 5️⃣ Configurar Frontend (Nueva Terminal)
 
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev
@@ -166,6 +191,24 @@ La aplicación estará en `http://localhost:5173`
 | 🛡️**Admin**      | admin@gym.com   | admin123   | Acceso completo al sistema        |
 
 > ⚠️ **Nota:** Estas credenciales son solo para desarrollo/pruebas.
+
+---
+
+## 📄 Documentación
+
+<div align="center">
+
+[![Documentación Completa](https://img.shields.io/badge/📚_Ver_Documentación_Completa-4A90E2?style=for-the-badge&logoColor=white)](./docs)
+
+</div>
+
+**Documentos disponibles:**
+
+- 📘 [**Documentación Técnica**](./docs/TECHNICAL_DOCUMENTATION.md) - Arquitectura C4, diagramas UML, modelo de datos normalizado
+- 📙 [**Manual de Usuario**](./docs/USER_MANUAL.md) - Guía no técnica para usuarios finales
+- 🔧 [**Backend**](./docs/BACKEND.md) - Detalles de implementación del servidor
+- ⚡ [**Quick Start**](./docs/QUICKSTART.md) - Inicio rápido para desarrolladores
+- 🧪 [**Guía de Testing**](./docs/TESTING_GUIDE.md) - Casos de prueba y validación
 
 ---
 
@@ -303,7 +346,7 @@ gym-pro-funcional/
 
 | Característica            | Implementación                        |
 | ------------------------- | ------------------------------------- |
-| 🔑**Autenticación**       | JWT con expiración de 7 días          |
+| 🔑**Autenticación**       | JWT con expiración de 30 minutos      |
 | 🔒**Contraseñas**         | Bcrypt con 10 salt rounds             |
 | 👮**Autorización**        | Middleware basado en roles            |
 | 🌐**CORS**                | Configurado para orígenes específicos |
