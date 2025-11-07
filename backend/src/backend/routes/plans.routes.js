@@ -24,13 +24,13 @@ router.get("/", async (req, res) => {
 
 /**
  * GET /api/plans/my
- * Obtener planes del usuario actual
+ * Obtener planes del usuario actual (solo ACTIVE, EXPIRED, CANCELLED - no PENDING_PAYMENT)
  */
 router.get("/my", async (req, res) => {
   try {
     const userPlans = await UserPlan.find({
       userId: req.user.id,
-      status: { $in: ["PENDING_PAYMENT", "ACTIVE", "EXPIRED"] },
+      status: { $in: ["ACTIVE", "EXPIRED", "CANCELLED"] },
     })
       .populate("planId")
       .sort({ createdAt: -1 });
@@ -66,6 +66,21 @@ router.post("/:id/purchase", async (req, res) => {
           "Ya tienes un plan activo. Cancela tu plan actual antes de comprar uno nuevo.",
       });
     }
+
+    // Cancelar cualquier plan PENDING_PAYMENT anterior del usuario
+    await UserPlan.updateMany(
+      {
+        userId: req.user.id,
+        status: "PENDING_PAYMENT",
+      },
+      {
+        $set: {
+          status: "CANCELLED",
+          cancelledAt: new Date(),
+          cancellationReason: "Plan no pagado - nueva compra iniciada",
+        },
+      }
+    );
 
     // Crear el UserPlan en estado PENDING_PAYMENT
     const startDate = new Date();
@@ -157,10 +172,23 @@ router.patch("/my/:id/cancel", async (req, res) => {
  */
 router.post("/payments/:paymentId/confirm", async (req, res) => {
   try {
+    console.log("🔍 Confirmando pago de plan:", req.params.paymentId);
+
     const payment = await Payment.findOne({
       _id: req.params.paymentId,
       userId: req.user.id,
     });
+
+    console.log(
+      "💳 Payment encontrado:",
+      payment
+        ? {
+            id: payment._id,
+            status: payment.status,
+            userPlanId: payment.userPlanId,
+          }
+        : "NO ENCONTRADO"
+    );
 
     if (!payment) {
       return res.status(404).json({ error: "Pago no encontrado" });
@@ -174,14 +202,29 @@ router.post("/payments/:paymentId/confirm", async (req, res) => {
     payment.status = "COMPLETED";
     await payment.save();
 
+    console.log("✅ Pago actualizado a COMPLETED");
+
     // Actualizar el UserPlan a ACTIVE
     const userPlan = await UserPlan.findById(payment.userPlanId).populate(
       "planId"
     );
 
+    console.log(
+      "📋 UserPlan encontrado:",
+      userPlan
+        ? {
+            id: userPlan._id,
+            status: userPlan.status,
+            planName: userPlan.planId?.name,
+          }
+        : "NO ENCONTRADO"
+    );
+
     if (userPlan) {
       userPlan.status = "ACTIVE";
       await userPlan.save();
+
+      console.log("✅ UserPlan actualizado a ACTIVE");
 
       const formatCurrency = (amount) => {
         return new Intl.NumberFormat("es-CL", {

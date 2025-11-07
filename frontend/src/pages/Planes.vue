@@ -101,6 +101,16 @@ const getPlanTypeLabel = (type) => {
   return labels[type] || type;
 };
 
+const getStatusLabel = (status) => {
+  const labels = {
+    ACTIVE: "Activo",
+    EXPIRED: "Expirado",
+    CANCELLED: "Cancelado",
+    PENDING_PAYMENT: "Pago Pendiente",
+  };
+  return labels[status] || status;
+};
+
 const openPurchase = (plan) => {
   planToPurchase.value = plan;
   showPurchaseModal.value = true;
@@ -163,14 +173,27 @@ const confirmCancel = async () => {
 
 const handlePaymentSuccess = async () => {
   try {
+    console.log(
+      "💳 handlePaymentSuccess - pendingPayment:",
+      pendingPayment.value
+    );
+
     if (pendingPayment.value?.isPlan) {
+      console.log(
+        "📋 Confirmando pago de plan con ID:",
+        pendingPayment.value._id
+      );
       await PlansService.confirmPayment(pendingPayment.value._id);
       showToast("¡Pago confirmado! Tu plan está activo 🎉", "success");
     }
     showPaymentModal.value = false;
     pendingPayment.value = null;
+
+    console.log("🔄 Recargando planes...");
     await loadPlans();
+    console.log("✅ Planes recargados");
   } catch (e) {
+    console.error("❌ Error en handlePaymentSuccess:", e);
     showToast(
       e?.response?.data?.error || "Error al confirmar el pago",
       "error"
@@ -454,9 +477,11 @@ const handlePaymentClose = () => {
                   userPlan.status === 'ACTIVE',
                 'bg-slate-500/20 text-slate-300': userPlan.status === 'EXPIRED',
                 'bg-red-500/20 text-red-300': userPlan.status === 'CANCELLED',
+                'bg-yellow-500/20 text-yellow-300':
+                  userPlan.status === 'PENDING_PAYMENT',
               }"
             >
-              {{ userPlan.status }}
+              {{ getStatusLabel(userPlan.status) }}
             </span>
             <p class="text-white font-semibold mt-2">
               {{ formatCurrency(userPlan.purchasePrice) }}
