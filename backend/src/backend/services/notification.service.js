@@ -1,8 +1,10 @@
 import "../config/env.js"; // Cargar variables de entorno PRIMERO
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
+import DeviceToken from "../models/DeviceToken.js";
 import nodemailer from "nodemailer";
 import logger from "../config/logger.js";
+import { getFirebaseAdmin } from "../config/firebase.js";
 
 // Configuración de reintentos
 const MAX_RETRIES = 3;
@@ -92,6 +94,16 @@ export async function createNotification({
       });
     }
 
+    // Enviar push notification si está configurado
+    if (sentVia.includes("PUSH")) {
+      await sendPushNotification({
+        userId,
+        title,
+        message,
+        metadata,
+      });
+    }
+
     return notification;
   } catch (error) {
     console.error("Error creating notification:", error);
@@ -162,6 +174,88 @@ async function sendEmailNotification({
     );
   } catch (error) {
     logger.error("Error enviando email:", error);
+    // No lanzar error para no bloquear la creación de la notificación
+  }
+}
+
+/**
+ * Enviar push notification usando Firebase Cloud Messaging
+ */
+async function sendPushNotification({ userId, title, message, metadata = {} }) {
+  try {
+    const firebaseAdmin = getFirebaseAdmin();
+
+    if (!firebaseAdmin) {
+      logger.info(
+        `🔔 [SIMULADO] Push notification a usuario ${userId}: ${title}`
+      );
+      return;
+    }
+
+    // Obtener todos los tokens activos del usuario
+    const deviceTokens = await DeviceToken.find({
+      userId,
+      isActive: true,
+    });
+
+    if (deviceTokens.length === 0) {
+      logger.info(
+        `Usuario ${userId} no tiene tokens de dispositivo registrados`
+      );
+      return;
+    }
+
+    const tokens = deviceTokens.map((dt) => dt.token);
+
+    // Preparar el mensaje para FCM
+    const fcmMessage = {
+      notification: {
+        title,
+        body: message,
+      },
+      data: {
+        type: metadata.type || "GENERAL",
+        relatedId: metadata.relatedId?.toString() || "",
+        relatedModel: metadata.relatedModel || "",
+        clickAction: metadata.actionUrl || "/",
+      },
+      tokens,
+    };
+
+    // Enviar la notificación a múltiples dispositivos
+    const response = await firebaseAdmin
+      .messaging()
+      .sendEachForMulticast(fcmMessage);
+
+    logger.info(
+      `✅ Push notification enviada a ${response.successCount}/${tokens.length} dispositivos`
+    );
+
+    // Desactivar tokens que fallaron (probablemente inválidos o expirados)
+    if (response.failureCount > 0) {
+      const failedTokens = [];
+      response.responses.forEach((resp, idx) => {
+        if (
+          !resp.success &&
+          (resp.error?.code === "messaging/invalid-registration-token" ||
+            resp.error?.code === "messaging/registration-token-not-registered")
+        ) {
+          failedTokens.push(tokens[idx]);
+        }
+      });
+
+      if (failedTokens.length > 0) {
+        await DeviceToken.updateMany(
+          { token: { $in: failedTokens } },
+          { isActive: false }
+        );
+        logger.info(`🔄 Desactivados ${failedTokens.length} tokens inválidos`);
+      }
+    }
+
+    return response;
+  } catch (error) {
+    logger.error("Error enviando push notification:", error);
     // No lanzar error para no bloquear la creación de la notificación
   }
 }
@@ -382,5 +476,79 @@ export async function sendClassReminders() {
     );
   } catch (error) {
     console.error("Error sending class reminders:", error);
+  }
+}
+
+/**
+ * Registrar un token de dispositivo para notificaciones push
+ */
+export async function registerDeviceToken({
+  userId,
+  token,
+  platform = "web",
+  userAgent,
+}) {
+  try {
+    // Buscar si ya existe el token
+    let deviceToken = await DeviceToken.findOne({ token });
+
+    if (deviceToken) {
+      // Actualizar el token existente
+      deviceToken.userId = userId;
+      deviceToken.platform = platform;
+      deviceToken.userAgent = userAgent;
+      deviceToken.isActive = true;
+      deviceToken.lastUsed = new Date();
+      await deviceToken.save();
+
+      logger.info(`🔄 Token actualizado para usuario ${userId}`);
+    } else {
+      // Crear nuevo token
+      deviceToken = await DeviceToken.create({
+        userId,
+        token,
+        platform,
+        userAgent,
+      });
+
+      logger.info(`✅ Nuevo token registrado para usuario ${userId}`);
+    }
+
+    return deviceToken;
+  } catch (error) {
+    logger.error("Error registering device token:", error);
+    throw error;
+  }
+}
+
+/**
+ * Eliminar un token de dispositivo
+ */
+export async function unregisterDeviceToken({ userId, token }) {
+  try {
+    const result = await DeviceToken.deleteOne({ userId, token });
+
+    if (result.deletedCount === 0) {
+      throw new Error("Token no encontrado");
+    }
+
+    logger.info(`🗑️ Token eliminado para usuario ${userId}`);
+    return { success: true };
+  } catch (error) {
+    logger.error("Error unregistering device token:", error);
+    throw error;
+  }
+}
+
+/**
+ * Obtener todos los tokens de un usuario
+ */
+export async function getUserDeviceTokens({ userId }) {
+  try {
+    const tokens = await DeviceToken.find({ userId, isActive: true });
+    return tokens;
+  } catch (error) {
+    logger.error("Error getting user device tokens:", error);
+    throw error;
   }
 }

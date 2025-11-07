@@ -16,6 +16,7 @@ logger.info(
 
 import connectDB from "./config/database.js";
 import { setupCronJobs } from "./config/cron.js";
+import { initializeFirebase } from "./config/firebase.js";
 import authRouter from "./routes/auth.routes.js";
 import trainersRouter from "./routes/trainers.routes.js";
 import classesRouter from "./routes/classes.routes.js";
@@ -34,6 +35,9 @@ connectDB();
 
 // Configurar cron jobs para recordatorios automáticos
 setupCronJobs();
+
+// Inicializar Firebase para push notifications
+initializeFirebase();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

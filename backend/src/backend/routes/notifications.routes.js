@@ -5,6 +5,9 @@ import {
   markAllAsRead,
   deleteNotification,
   createNotification,
+  registerDeviceToken,
+  unregisterDeviceToken,
+  getUserDeviceTokens,
 } from "../services/notification.service.js";
 
 const router = express.Router();
@@ -137,6 +140,78 @@ router.post("/send-reminders", async (req, res) => {
     });
   } catch (error) {
     console.error("Error sending class reminders:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/notifications/register-token
+ * Registrar un token de dispositivo para push notifications
+ */
+router.post("/register-token", async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { token, platform = "web" } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token es requerido" });
+    }
+
+    const userAgent = req.headers["user-agent"];
+
+    const deviceToken = await registerDeviceToken({
+      userId,
+      token,
+      platform,
+      userAgent,
+    });
+
+    res.json({
+      success: true,
+      message: "Token registrado correctamente",
+      deviceToken,
+    });
+  } catch (error) {
+    console.error("Error registering device token:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /api/notifications/unregister-token
+ * Eliminar un token de dispositivo
+ */
+router.delete("/unregister-token", async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token es requerido" });
+    }
+
+    const result = await unregisterDeviceToken({ userId, token });
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error unregistering device token:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/notifications/device-tokens
+ * Obtener todos los tokens de dispositivo del usuario
+ */
+router.get("/device-tokens", async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const tokens = await getUserDeviceTokens({ userId });
+
+    res.json({ tokens });
+  } catch (error) {
+    console.error("Error getting device tokens:", error);
     res.status(500).json({ error: error.message });
   }
 });
