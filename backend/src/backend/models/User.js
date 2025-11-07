@@ -26,14 +26,15 @@ const userSchema = new mongoose.Schema(
     avatar: {
       type: String,
     },
-    membershipType: {
-      type: String,
-      enum: ["BASIC", "PREMIUM", "VIP"],
-      default: "BASIC",
-    },
-    membershipExpiresAt: {
-      type: Date,
-    },
+    // DEPRECATED: membershipType ya no se usa, ahora se usa UserPlan
+    // membershipType: {
+    //   type: String,
+    //   enum: ["BASIC", "PREMIUM", "VIP"],
+    //   default: "BASIC",
+    // },
+    // membershipExpiresAt: {
+    //   type: Date,
+    // },
     preferences: {
       notifications: {
         email: { type: Boolean, default: true },
@@ -49,6 +50,14 @@ const userSchema = new mongoose.Schema(
       totalClasses: { type: Number, default: 0 },
       totalSpent: { type: Number, default: 0 },
       favoriteClass: { type: String },
+    },
+    refreshToken: {
+      type: String,
+      select: false, // No incluir en queries por defecto
+    },
+    refreshTokenExpiresAt: {
+      type: Date,
+      select: false,
     },
   },
   {
