@@ -216,7 +216,10 @@ export async function confirmPayment({ paymentIntentId }) {
  */
 export async function refundPayment({ paymentId, reason }) {
   try {
-    const payment = await Payment.findById(paymentId);
+    const payment = await Payment.findById(paymentId).populate({
+      path: "reservationId",
+      populate: { path: "classId" },
+    });
 
     if (!payment) {
       throw new Error("Pago no encontrado");
@@ -226,10 +229,30 @@ export async function refundPayment({ paymentId, reason }) {
       throw new Error("Solo se pueden reembolsar pagos completados");
     }
 
+    if (payment.status === "REFUNDED") {
+      throw new Error("Este pago ya fue reembolsado");
+    }
+
+    const reservation = payment.reservationId;
+
+    // Validar política de reembolso: solo si la clase es en más de 24 horas
+    const classDate = new Date(reservation.date);
+    const hoursUntilClass = (classDate - new Date()) / (1000 * 60 * 60);
+
+    if (hoursUntilClass < 24) {
+      throw new Error(
+        "No se puede reembolsar. La clase es en menos de 24 horas. Política de cancelación: mínimo 24 horas de anticipación."
+      );
+    }
+
     // Crear el reembolso en Stripe
     const refund = await getStripe().refunds.create({
       payment_intent: payment.stripePaymentIntentId,
       reason: "requested_by_customer",
+      metadata: {
+        reason: reason || "Usuario solicitó reembolso",
+        reservationId: reservation._id.toString(),
+      },
     });
 
     // Actualizar el pago
@@ -239,13 +262,42 @@ export async function refundPayment({ paymentId, reason }) {
     await payment.save();
 
     // Actualizar la reserva
-    const reservation = await Reservation.findById(payment.reservationId);
     if (reservation) {
       reservation.status = "CANCELLED";
-      reservation.cancellationReason = reason;
+      reservation.cancellationReason = reason || "Reembolso solicitado";
       reservation.cancelledAt = new Date();
       await reservation.save();
     }
+
+    // DEVOLVER CRÉDITO al usuario
+    const activePlan = await UserPlan.findOne({
+      userId: payment.userId,
+      status: "ACTIVE",
+      expiryDate: { $gt: new Date() },
+    });
+
+    if (activePlan) {
+      activePlan.creditsRemaining += 1;
+      await activePlan.save();
+      console.log(
+        `✅ Crédito devuelto por reembolso. Créditos actuales: ${activePlan.creditsRemaining}`
+      );
+    }
+
+    // Notificar al usuario
+    await createNotification({
+      userId: payment.userId,
+      type: "REFUND_PROCESSED",
+      title: "💰 Reembolso Procesado",
+      message: `Tu reembolso de $${payment.amount} ha sido procesado. El dinero será devuelto en 5-10 días hábiles. Se ha restaurado 1 crédito a tu plan.`,
+      relatedId: payment._id,
+      relatedModel: "Payment",
+      sentVia: ["EMAIL", "IN_APP"],
+      metadata: {
+        amount: payment.amount,
+        creditsRestored: 1,
+      },
+    });
 
     return payment;
   } catch (error) {

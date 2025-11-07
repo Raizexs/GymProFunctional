@@ -100,11 +100,32 @@ router.post(
       const sig = req.headers["stripe-signature"];
       const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-      // En producción, verificar la firma del webhook
-      // const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      if (!webhookSecret) {
+        console.warn(
+          "⚠️  STRIPE_WEBHOOK_SECRET no configurado - modo desarrollo"
+        );
+        // En desarrollo, permitir sin verificación
+        const event = JSON.parse(req.body.toString());
+        await handleStripeWebhook({ event });
+        return res.json({ received: true });
+      }
 
-      // Por ahora, solo parseamos el body
-      const event = JSON.parse(req.body.toString());
+      // PRODUCCIÓN: Verificar firma del webhook
+      let event;
+      try {
+        const stripe = await import("stripe").then((m) => m.default);
+        const stripeInstance = new stripe.default(
+          process.env.STRIPE_SECRET_KEY
+        );
+        event = stripeInstance.webhooks.constructEvent(
+          req.body,
+          sig,
+          webhookSecret
+        );
+      } catch (err) {
+        console.error("❌ Webhook signature verification failed:", err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+      }
 
       await handleStripeWebhook({ event });
 
