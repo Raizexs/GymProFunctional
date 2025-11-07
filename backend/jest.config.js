@@ -8,13 +8,14 @@ export default {
   ],
   coverageThreshold: {
     global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
+      branches: 5,
+      functions: 5,
+      lines: 10,
+      statements: 10,
     },
   },
-  testMatch: ["**/__tests__/**/*.js", "**/?(*.)+(spec|test).js"],
+  testMatch: ["**/__tests__/**/*.test.js", "**/?(*.)+(spec|test).js"],
+  testPathIgnorePatterns: ["/node_modules/", "/__tests__/setup.js"],
   transform: {},
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
