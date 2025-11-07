@@ -2,6 +2,8 @@
 import { ref, computed, onMounted } from "vue";
 import { ClassesService } from "@/services/classes";
 import { ReservationsService } from "@/services/reservations";
+import { TrainerService } from "@/services/trainer";
+import { useAuthStore } from "@/stores/auth";
 import Toast from "@/components/Toast.vue";
 
 const classes = ref([]);
@@ -29,7 +31,26 @@ const today = computed(() => {
 
 onMounted(async () => {
   try {
-    classes.value = await ClassesService.list();
+    // Cargar sesión (si no está cargada en otro lugar)
+    const auth = useAuthStore();
+    auth.loadFromStorage?.();
+
+    // Si el usuario es TRAINER, obtener solo sus clases con reservas
+    if (auth.user && auth.user.role === "TRAINER") {
+      const data = await TrainerService.getMyClasses();
+      // `data` viene con { trainer, classes }
+      // Mapear al formato esperado por el select (id, title, coach)
+      classes.value = (data.classes || []).map((c) => ({
+        id: c.id,
+        title: c.title,
+        coach: c.coach || {},
+        // mantener reservas localmente para evitar llamadas extra
+        reservations: c.reservations || [],
+      }));
+    } else {
+      classes.value = await ClassesService.list();
+    }
+
     selectedDate.value = today.value;
   } catch (e) {
     error.value =
@@ -46,10 +67,34 @@ const loadReservations = async () => {
   error.value = "";
 
   try {
-    reservations.value = await ReservationsService.getClassReservations(
-      selectedClass.value,
-      selectedDate.value
-    );
+    // Si tenemos reservas embedidas (modo entrenador), usarlas y filtrar por fecha
+    const cls = classes.value.find((c) => c.id === selectedClass.value);
+    if (cls && Array.isArray(cls.reservations) && cls.reservations.length > 0) {
+      // Filtrar por fecha (comparar solo fecha YYYY-MM-DD)
+      const target = new Date(selectedDate.value + "T00:00:00");
+      reservations.value = cls.reservations
+        .filter((r) => {
+          const rd = new Date(r.date);
+          return (
+            rd.getFullYear() === target.getFullYear() &&
+            rd.getMonth() === target.getMonth() &&
+            rd.getDate() === target.getDate()
+          );
+        })
+        .map((r) => ({
+          _id: r.id || r._id,
+          userId: r.user,
+          attended: r.attended,
+          status: r.status,
+          date: r.date,
+        }));
+    } else {
+      // Modo normal: pedir al backend
+      reservations.value = await ReservationsService.getClassReservations(
+        selectedClass.value,
+        selectedDate.value
+      );
+    }
   } catch (e) {
     error.value =
       e?.response?.data?.error || "No se pudieron cargar las reservas";
