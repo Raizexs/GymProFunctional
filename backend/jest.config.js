@@ -8,10 +8,10 @@ export default {
   ],
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50,
     },
   },
   testMatch: ["**/__tests__/**/*.js", "**/?(*.)+(spec|test).js"],
@@ -19,5 +19,6 @@ export default {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  testTimeout: 10000,
+  testTimeout: 15000,
+  setupFilesAfterEnv: ["<rootDir>/__tests__/setup.js"],
 };

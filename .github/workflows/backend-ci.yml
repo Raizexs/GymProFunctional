@@ -38,6 +38,18 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     defaults:
       run:
         working-directory: ./backend
@@ -65,6 +77,11 @@ jobs:
           NODE_ENV: test
           JWT_SECRET: test_secret_key_for_ci
           MONGODB_URI: mongodb://localhost:27017/gym_test
+          STRIPE_SECRET_KEY: sk_test_dummy_key_for_ci_only
+          SMTP_HOST: localhost
+          SMTP_PORT: 587
+          SMTP_USER: test@test.com
+          SMTP_PASS: test_password
 
       - name: Upload coverage to Codecov
         if: matrix.node-version == 18
