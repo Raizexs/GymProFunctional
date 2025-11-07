@@ -43,27 +43,27 @@ El objetivo es construir un sistema **full-stack** que permita gestionar las ope
 
 ### 🔧 Backend
 
-| Tecnología                                                                                                  | Versión | Propósito              |
-| ----------------------------------------------------------------------------------------------------------- | ------- | ---------------------- |
-| ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js&logoColor=white)  | 18+     | Runtime JavaScript     |
-| ![Express](https://img.shields.io/badge/Express-4.19-000000?style=flat-square&logo=express&logoColor=white) | 4.19    | Framework web          |
-| ![MongoDB](https://img.shields.io/badge/MongoDB-6.20-47A248?style=flat-square&logo=mongodb&logoColor=white) | 6.20    | Base de datos NoSQL    |
-| ![Mongoose](https://img.shields.io/badge/Mongoose-8.19-880000?style=flat-square)                            | 8.19    | ODM para MongoDB       |
-| ![JWT](https://img.shields.io/badge/JWT-9.0-000000?style=flat-square&logo=json-web-tokens&logoColor=white)  | 9.0     | Autenticación          |
-| ![Stripe](https://img.shields.io/badge/Stripe-14.25-008CDD?style=flat-square&logo=stripe&logoColor=white)   | 14.25   | Procesamiento de pagos |
-| ![Nodemailer](https://img.shields.io/badge/Nodemailer-6.10-22B573?style=flat-square)                        | 6.10    | Envío de emails        |
-| ![Node-Cron](https://img.shields.io/badge/Node--Cron-4.2-orange?style=flat-square)                          | 4.2     | Tareas programadas     |
+| Tecnología                                                                                               | Versión | Propósito             |
+| --------------------------------------------------------------------------------------------------------- | -------- | ---------------------- |
+| ![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js&logoColor=white)  | 18+      | Runtime JavaScript     |
+| ![Express](https://img.shields.io/badge/Express-4.19-000000?style=flat-square&logo=express&logoColor=white) | 4.19     | Framework web          |
+| ![MongoDB](https://img.shields.io/badge/MongoDB-6.20-47A248?style=flat-square&logo=mongodb&logoColor=white) | 6.20     | Base de datos NoSQL    |
+| ![Mongoose](https://img.shields.io/badge/Mongoose-8.19-880000?style=flat-square)                            | 8.19     | ODM para MongoDB       |
+| ![JWT](https://img.shields.io/badge/JWT-9.0-000000?style=flat-square&logo=json-web-tokens&logoColor=white)  | 9.0      | Autenticación         |
+| ![Stripe](https://img.shields.io/badge/Stripe-14.25-008CDD?style=flat-square&logo=stripe&logoColor=white)   | 14.25    | Procesamiento de pagos |
+| ![Nodemailer](https://img.shields.io/badge/Nodemailer-6.10-22B573?style=flat-square)                        | 6.10     | Envío de emails       |
+| ![Node-Cron](https://img.shields.io/badge/Node--Cron-4.2-orange?style=flat-square)                          | 4.2      | Tareas programadas     |
 
 ### 🎨 Frontend
 
-| Tecnología                                                                                                            | Versión | Propósito            |
-| --------------------------------------------------------------------------------------------------------------------- | ------- | -------------------- |
-| ![Vue.js](https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=flat-square&logo=vue.js&logoColor=white)               | 3.4     | Framework progresivo |
-| ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat-square&logo=vite&logoColor=white)                     | 5.4     | Build tool           |
-| ![Pinia](https://img.shields.io/badge/Pinia-2.0-FFD859?style=flat-square)                                             | 2.0     | State management     |
-| ![Vue Router](https://img.shields.io/badge/Vue_Router-4.0-4FC08D?style=flat-square)                                   | 4.0     | Navegación SPA       |
-| ![Axios](https://img.shields.io/badge/Axios-1.0-5A29E4?style=flat-square)                                             | 1.0     | Cliente HTTP         |
-| ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) | 3.4     | Framework CSS        |
+| Tecnología                                                                                                         | Versión | Propósito           |
+| ------------------------------------------------------------------------------------------------------------------- | -------- | -------------------- |
+| ![Vue.js](https://img.shields.io/badge/Vue.js-3.4-4FC08D?style=flat-square&logo=vue.js&logoColor=white)               | 3.4      | Framework progresivo |
+| ![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=flat-square&logo=vite&logoColor=white)                     | 5.4      | Build tool           |
+| ![Pinia](https://img.shields.io/badge/Pinia-2.0-FFD859?style=flat-square)                                             | 2.0      | State management     |
+| ![Vue Router](https://img.shields.io/badge/Vue_Router-4.0-4FC08D?style=flat-square)                                   | 4.0      | Navegación SPA      |
+| ![Axios](https://img.shields.io/badge/Axios-1.0-5A29E4?style=flat-square)                                             | 1.0      | Cliente HTTP         |
+| ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) | 3.4      | Framework CSS        |
 
 ---
 
@@ -184,11 +184,11 @@ La aplicación estará en `http://localhost:5173`
 
 ## 🔑 Credenciales de Prueba
 
-| Rol              | Email           | Password   | Permisos                          |
-| ---------------- | --------------- | ---------- | --------------------------------- |
-| 👤**Usuario**    | user@gym.com    | user123    | Reservar clases, ver estadísticas |
-| 👨‍🏫**Entrenador** | trainer@gym.com | trainer123 | Gestionar clases y asistencia     |
-| 🛡️**Admin**      | admin@gym.com   | admin123   | Acceso completo al sistema        |
+| Rol                        | Email           | Password   | Permisos                           |
+| -------------------------- | --------------- | ---------- | ---------------------------------- |
+| 👤**Usuario**        | user@gym.com    | user123    | Reservar clases, ver estadísticas |
+| 👨‍🏫**Entrenador** | trainer@gym.com | trainer123 | Gestionar clases y asistencia      |
+| 🛡️**Admin**        | admin@gym.com   | admin123   | Acceso completo al sistema         |
 
 > ⚠️ **Nota:** Estas credenciales son solo para desarrollo/pruebas.
 
@@ -204,8 +204,6 @@ La aplicación estará en `http://localhost:5173`
 
 **Documentos disponibles:**
 
-- 📘 [**Documentación Técnica**](./docs/TECHNICAL_DOCUMENTATION.md) - Arquitectura C4, diagramas UML, modelo de datos normalizado
-- 📙 [**Manual de Usuario**](./docs/USER_MANUAL.md) - Guía no técnica para usuarios finales
 - 🔧 [**Backend**](./docs/BACKEND.md) - Detalles de implementación del servidor
 - ⚡ [**Quick Start**](./docs/QUICKSTART.md) - Inicio rápido para desarrolladores
 - 🧪 [**Guía de Testing**](./docs/TESTING_GUIDE.md) - Casos de prueba y validación
@@ -252,12 +250,12 @@ gym-pro-funcional/
 
 ### 🔒 Endpoints Privados (requieren autenticación)
 
-| Método | Endpoint                      | Descripción                |
-| ------ | ----------------------------- | -------------------------- |
+| Método  | Endpoint                        | Descripción               |
+| -------- | ------------------------------- | -------------------------- |
 | `GET`  | `/api/reservations/me`        | Mis reservas               |
 | `POST` | `/api/reservations`           | Crear reserva              |
 | `POST` | `/api/payments/create-intent` | Procesar pago              |
-| `GET`  | `/api/stats/dashboard`        | Estadísticas según rol     |
+| `GET`  | `/api/stats/dashboard`        | Estadísticas según rol   |
 | `GET`  | `/api/notifications`          | Notificaciones del usuario |
 
 ---
@@ -344,14 +342,14 @@ gym-pro-funcional/
 
 ## 🔐 Características de Seguridad
 
-| Característica            | Implementación                        |
-| ------------------------- | ------------------------------------- |
-| 🔑**Autenticación**       | JWT con expiración de 30 minutos      |
-| 🔒**Contraseñas**         | Bcrypt con 10 salt rounds             |
-| 👮**Autorización**        | Middleware basado en roles            |
+| Característica                 | Implementación                         |
+| ------------------------------- | --------------------------------------- |
+| 🔑**Autenticación**      | JWT con expiración de 30 minutos       |
+| 🔒**Contraseñas**        | Bcrypt con 10 salt rounds               |
+| 👮**Autorización**       | Middleware basado en roles              |
 | 🌐**CORS**                | Configurado para orígenes específicos |
 | 🔐**Variables sensibles** | Almacenadas en `.env`                 |
-| 💳**Pagos**               | PCI compliant con Stripe              |
+| 💳**Pagos**               | PCI compliant con Stripe                |
 
 ---
 
