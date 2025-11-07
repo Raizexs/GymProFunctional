@@ -149,7 +149,8 @@ async function seed() {
       },
     });
 
-    const trainerUser = await User.create({
+    // Crear usuario entrenador de ejemplo (no se usa directamente)
+    await User.create({
       name: "Carlos Martínez",
       email: "trainer@gym.com",
       passwordHash: await bcrypt.hash("trainer123", 10),
@@ -300,7 +301,7 @@ async function seed() {
     ]);
 
     console.log("💳 Creando planes...");
-    const plans = await Plan.insertMany([
+    await Plan.insertMany([
       {
         name: "Básico",
         description: "Perfecto para comenzar tu viaje fitness",

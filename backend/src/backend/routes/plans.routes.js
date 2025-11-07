@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { requireAuth } from "../middlewares/auth.middleware.js";
 import Plan from "../models/Plan.js";
 import UserPlan from "../models/UserPlan.js";
 import Payment from "../models/Payment.js";
@@ -233,15 +232,6 @@ router.post("/payments/:paymentId/confirm", async (req, res) => {
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
         }).format(amount);
-      };
-
-      const formatDate = (date) => {
-        return new Date(date).toLocaleDateString("es-ES", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
       };
 
       // Crear notificación de compra confirmada

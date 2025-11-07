@@ -2,7 +2,6 @@ import Stripe from "stripe";
 import Payment from "../models/Payment.js";
 import Reservation from "../models/Reservation.js";
 import UserPlan from "../models/UserPlan.js";
-import Class from "../models/Class.js";
 import { createNotification } from "./notification.service.js";
 
 // Inicializar Stripe de manera lazy (solo cuando se necesita)
@@ -343,7 +342,7 @@ export async function handleStripeWebhook({ event }) {
         });
         break;
 
-      case "payment_intent.payment_failed":
+      case "payment_intent.payment_failed": {
         const failedPayment = await Payment.findOne({
           stripePaymentIntentId: event.data.object.id,
         });
@@ -352,6 +351,7 @@ export async function handleStripeWebhook({ event }) {
           await failedPayment.save();
         }
         break;
+      }
 
       default:
         console.log(`Unhandled event type: ${event.type}`);

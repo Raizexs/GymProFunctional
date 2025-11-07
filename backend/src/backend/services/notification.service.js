@@ -334,7 +334,6 @@ export async function sendClassReminders() {
 
     // Importar Reservation aquí para evitar dependencias circulares
     const Reservation = (await import("../models/Reservation.js")).default;
-    const Class = (await import("../models/Class.js")).default;
 
     // Encontrar reservas que ocurren en 24 horas
     const reservations24h = await Reservation.find({

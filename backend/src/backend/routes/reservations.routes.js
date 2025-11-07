@@ -109,8 +109,6 @@ router.post("/", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const { cancellationReason } = req.body;
-
     const result = await cancelReservationHard({
       userId: req.user.id,
       reservationId: req.params.id,

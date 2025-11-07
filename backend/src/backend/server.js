@@ -26,6 +26,7 @@ import notificationsRouter from "./routes/notifications.routes.js";
 import statsRouter from "./routes/stats.routes.js";
 import plansRouter from "./routes/plans.routes.js";
 import trainerClassesRouter from "./routes/trainer-classes.routes.js";
+import feedbackRouter from "./routes/feedback.routes.js";
 import { requireAuth } from "./middlewares/auth.middleware.js";
 
 // Conectar a MongoDB
@@ -61,6 +62,7 @@ app.use("/api/notifications", requireAuth, notificationsRouter);
 app.use("/api/stats", requireAuth, statsRouter);
 app.use("/api/plans", requireAuth, plansRouter);
 app.use("/api/trainer", requireAuth, trainerClassesRouter);
+app.use("/api/feedback", requireAuth, feedbackRouter);
 
 logger.info("✅ Rutas registradas:");
 logger.info("   - /api/auth");
@@ -73,6 +75,7 @@ logger.info("   - /api/notifications (protegida)");
 logger.info("   - /api/stats (protegida)");
 logger.info("   - /api/plans (protegida)");
 logger.info("   - /api/trainer (protegida)");
+logger.info("   - /api/feedback (protegida)");
 
 // Solo iniciar servidor si no estamos en modo test
 if (process.env.NODE_ENV !== "test") {
