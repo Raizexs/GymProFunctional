@@ -265,7 +265,7 @@ gym-pro-funcional/
 ### Seguridad
 
 - Contraseñas hasheadas con bcrypt (10 salt rounds)
-- Autenticación con JWT (7 días de expiración)
+- Autenticación con JWT (30 minutos de expiración)
 - Middleware de autorización por roles
 - Variables sensibles en archivo `.env`
 - CORS configurado correctamente
