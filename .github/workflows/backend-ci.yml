@@ -122,7 +122,7 @@ jobs:
           cp package*.json dist/
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-build
           path: backend/dist
