@@ -2,6 +2,17 @@ import "../config/env.js"; // Cargar variables de entorno PRIMERO
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 import nodemailer from "nodemailer";
+import logger from "../config/logger.js";
+
+// Configuración de reintentos
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 1000; // 1 segundo base
+
+// Función de delay con exponential backoff
+const delay = (ms, attempt) => {
+  const backoffMs = ms * Math.pow(2, attempt);
+  return new Promise((resolve) => setTimeout(resolve, backoffMs));
+};
 
 // Verificar si SMTP está configurado
 const isSmtpConfigured =
@@ -23,24 +34,27 @@ if (isSmtpConfigured) {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      pool: true, // Usar pool de conexiones
+      maxConnections: 5,
+      maxMessages: 100,
     });
 
     // Verificar la configuración al iniciar
     emailTransporter.verify((error, success) => {
       if (error) {
-        console.error("❌ Error en configuración SMTP:", error.message);
+        logger.error("Error en configuración SMTP:", error);
         emailTransporter = null;
       } else {
-        console.log("✅ Servidor SMTP configurado correctamente");
+        logger.info("✅ Servidor SMTP configurado correctamente");
       }
     });
   } catch (error) {
-    console.error("❌ Error creando transporter SMTP:", error.message);
+    logger.error("Error creando transporter SMTP:", error);
     emailTransporter = null;
   }
 } else {
-  console.log("⚠️  SMTP no configurado. Los emails no se enviarán.");
-  console.log("   Configura las variables SMTP_* en el archivo .env");
+  logger.warn("SMTP no configurado. Los emails no se enviarán.");
+  logger.info("Configura las variables SMTP_* en el archivo .env");
 }
 
 /**
@@ -86,7 +100,7 @@ export async function createNotification({
 }
 
 /**
- * Enviar notificación por email
+ * Enviar notificación por email con reintentos
  */
 async function sendEmailNotification({
   userId,
@@ -96,9 +110,7 @@ async function sendEmailNotification({
 }) {
   // Si SMTP no está configurado, solo loguear
   if (!emailTransporter) {
-    console.log(`📧 [SIMULADO] Email a usuario ${userId}:`);
-    console.log(`   Asunto: ${title}`);
-    console.log(`   Mensaje: ${message}`);
+    logger.info(`📧 [SIMULADO] Email a usuario ${userId}: ${title}`);
     return;
   }
 
@@ -107,24 +119,49 @@ async function sendEmailNotification({
     const user = await User.findById(userId);
 
     if (!user || !user.email) {
-      console.log(`⚠️  Usuario ${userId} no tiene email configurado`);
+      logger.warn(`Usuario ${userId} no tiene email configurado`);
       return;
     }
 
-    // Crear el HTML del email con plantilla mejorada
-    const htmlContent = createEmailTemplate(title, message, metadata);
+    // Intentar enviar con reintentos
+    let lastError = null;
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        // Crear el HTML del email con plantilla mejorada
+        const htmlContent = createEmailTemplate(title, message, metadata);
 
-    // Enviar el email
-    const info = await emailTransporter.sendMail({
-      from: process.env.SMTP_FROM || "Gimnasio Pro <noreply@gympro.com>",
-      to: user.email,
-      subject: title,
-      html: htmlContent,
-    });
+        // Enviar el email
+        const info = await emailTransporter.sendMail({
+          from: process.env.SMTP_FROM || "Gimnasio Pro <noreply@gympro.com>",
+          to: user.email,
+          subject: title,
+          html: htmlContent,
+        });
 
-    console.log(`✅ Email enviado a ${user.email} (ID: ${info.messageId})`);
+        logger.info(`✅ Email enviado a ${user.email} (ID: ${info.messageId})`);
+        return; // Éxito, salir
+      } catch (error) {
+        lastError = error;
+        logger.warn(
+          `Intento ${attempt + 1}/${MAX_RETRIES} falló para ${user.email}: ${
+            error.message
+          }`
+        );
+
+        // Si no es el último intento, esperar antes de reintentar
+        if (attempt < MAX_RETRIES - 1) {
+          await delay(RETRY_DELAY_MS, attempt);
+        }
+      }
+    }
+
+    // Si llegamos aquí, todos los intentos fallaron
+    logger.error(
+      `❌ Email falló después de ${MAX_RETRIES} intentos a ${user.email}:`,
+      lastError
+    );
   } catch (error) {
-    console.error("❌ Error enviando email:", error.message);
+    logger.error("Error enviando email:", error);
     // No lanzar error para no bloquear la creación de la notificación
   }
 }
